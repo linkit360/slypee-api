@@ -1,0 +1,238 @@
+/* dropdown */
+.dropdown-wrapper {
+    position: relative;
+}
+
+.dropdown-wrapper .dropdown-content {
+    left: auto !important;
+    right: 0 !important;
+    min-width: 200px;
+}
+
+/* action checkbox & usial checkbox */
+[type="checkbox"].filled-in+label:after {
+    border-width: 1px ! important;
+    border-color: #9e9e9e ! important;
+    top: 2.5px ! important;
+}
+
+[type="checkbox"].filled-in:checked+label:before {
+    top: 2.5px;
+}
+
+[type="checkbox"].action-checkbox+label {
+    font-size: 0px;
+    display: flex;
+}
+[type="checkbox"].action-checkbox+label:after, [type="checkbox"].action-checkbox+label:before {
+    top: 2.5px ! important;
+}
+
+.indigo-field:checked + label:after {
+    background-color: #3f51b5 ! important;
+    border-color: #3f51b5 ! important;
+}
+
+.input-field.indigo-field input[type=text]:focus + label,
+.input-field.indigo-field input[type=password]:focus + label,
+.input-field.indigo-field textarea:focus + label {
+    color: #3f51b5;
+}
+
+.input-field.indigo-field input[type=text]:focus,
+.input-field.indigo-field input[type=password]:focus,
+.input-field.indigo-field textarea:focus {
+    border-bottom: 1px solid #3f51b5;
+    box-shadow: 0 1px 0 0 #3f51b5;
+}
+
+.checkbox-group {
+
+}
+
+.checkbox-group label.checkbox-group-el {
+    position: static;
+    transform: translateY(0);
+    pointer-events: auto;
+    cursor: default;
+    margin: 20px 0;
+    display: flex;
+}
+
+.checkbox-group label.checkbox-group-el:first-child {
+    padding-top: 30px;
+    margin-top: 0;
+}
+
+.checkbox-group label.checkbox-group-el label {
+    transform: translateY(0);
+    pointer-events: auto;
+    cursor: default;
+}
+
+.checkbox-group + .checkbox-group-header {
+    height: auto;
+    top: 0;
+    font-size: 0.8rem;
+    transform: translateY(0);
+}
+
+/* inputs */
+.error .input-field.input-field input  {
+    border-bottom: 1px solid #F44336;
+    -webkit-box-shadow: 0 1px 0 0 #F44336;
+    box-shadow: 0 1px 0 0 #F44336;
+}
+
+.error .help-block.help-block-error {
+    position: absolute;
+    left: 0;
+    top: 100%;
+    font-size: 1rem;
+    color: #F44336;
+    transition: .2s opacity ease-out, .2s color ease-out;
+    transform: translate(0, -20px);
+}
+
+.field-permissions.error .help-block.help-block-error {
+    transform: translate(0, 0);
+}
+
+.field-permissions .input-field {
+    margin-top: 0;
+}
+
+.form-summary {
+    text-align: right;
+    margin: 20px 0 0;
+}
+.form-summary .help-block {
+    font-size: 1rem;
+    margin: 0 0 5px;
+}
+.form-summary .help-block.help-block-error {
+    color: #F44336;
+}
+.form-summary .help-block.help-block-success {
+    color: #4CAF50;
+}
+#login-form .form-summary {
+    position: relative;
+}
+#login-form .form-summary .help-block {
+    position: absolute;
+    top: -20px;
+    left: 0;
+}
+
+    /* logo */
+.logo i.material-icons {
+    display: inline-flex;
+}
+
+/* breadcrumbs */
+.breadcrumbs {
+    margin: 0.5rem 0 2rem;
+    display: flex;
+    align-items: center;
+}
+
+.breadcrumb, .breadcrumb:last-child {
+    color: #039be5;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.breadcrumb:last-child {
+    color: rgba(0,0,0,0.87);
+}
+
+.breadcrumb:before {
+    color: #039be5;
+    font-size: 20px;
+}
+
+/* dropdown-button */
+.dropdown-button {
+    display: inline-flex;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+}
+
+/* paginator */
+.pagination {
+    display: flex;
+    margin: 2rem 0 0;
+}
+
+.pagination li {
+    background: #f2f2f2;
+    margin: 0 2px;
+}
+
+.pagination li:first-child * {
+    padding-left: 0;
+}
+
+.pagination li a {
+    display: inline-flex;
+}
+
+.pagination li span {
+    color: #444;
+    display: inline-flex;
+    font-size: 1.2rem;
+    padding: 0 10px;
+    line-height: 30px;
+}
+
+.pagination li.prev , .pagination li.next {
+    background: transparent;
+}
+
+.pagination li.disabled span {
+    cursor: default;
+    color: #999;
+}
+
+/* select */
+.field-role .materialize-select {
+    width: 30%;
+}
+
+.select-wrapper span.caret {
+    font-size: 0;
+}
+
+.select-wrapper span.caret::before {
+    content: "arrow_drop_down";
+    font-family: 'Material Icons';
+    font-size: 24px;
+}
+
+/* zebra datepicker */
+button.Zebra_DatePicker_Icon {
+    transform: translate(0, -10px);
+}
+
+/* collections */
+.collection-header h4 {
+    font-size: 20px;
+}
+
+/* navbar */
+.navbar-item-separator {
+    position: relative;
+    padding-right: 15px;
+}
+
+.navbar-item-separator:after {
+    content: "";
+    position: absolute;
+    right: 0;
+    width: 1px;
+    top: 20px;
+    bottom: 20px;
+    background: white;
+}
