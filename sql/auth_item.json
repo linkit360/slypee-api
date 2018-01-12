@@ -1,0 +1,139 @@
+{
+"RECORDS":[
+{
+"name":"Admin",
+"type":1,
+"description":"Full permissions",
+"rule_name":null,
+"data":"",
+"created_at":1513159476,
+"updated_at":1515737712
+},
+{
+"name":"createCategory",
+"type":2,
+"description":"Create a category",
+"rule_name":null,
+"data":"",
+"created_at":1513679987,
+"updated_at":1513679987
+},
+{
+"name":"createContent",
+"type":2,
+"description":"Create a content",
+"rule_name":null,
+"data":"",
+"created_at":1515736425,
+"updated_at":1515736425
+},
+{
+"name":"createUser",
+"type":2,
+"description":"Create a user",
+"rule_name":null,
+"data":"",
+"created_at":1514298376,
+"updated_at":1514298376
+},
+{
+"name":"Manager",
+"type":1,
+"description":"Easy role",
+"rule_name":null,
+"data":"",
+"created_at":1514283165,
+"updated_at":1514453852
+},
+{
+"name":"updateCategory",
+"type":2,
+"description":"Update a category",
+"rule_name":null,
+"data":"",
+"created_at":1513680006,
+"updated_at":1513680006
+},
+{
+"name":"updateContent",
+"type":2,
+"description":"Update content",
+"rule_name":null,
+"data":"",
+"created_at":1515736425,
+"updated_at":1515736425
+},
+{
+"name":"updateUser",
+"type":2,
+"description":"Update user",
+"rule_name":null,
+"data":"",
+"created_at":1514298376,
+"updated_at":1514298376
+},
+{
+"name":"viewCategory",
+"type":2,
+"description":"View list of categories",
+"rule_name":null,
+"data":"",
+"created_at":1513159476,
+"updated_at":1513159476
+},
+{
+"name":"viewCategoryLog",
+"type":2,
+"description":"View a category log",
+"rule_name":null,
+"data":"",
+"created_at":1513680049,
+"updated_at":1513680049
+},
+{
+"name":"viewContent",
+"type":2,
+"description":"View list of content",
+"rule_name":null,
+"data":"",
+"created_at":1515736425,
+"updated_at":1515736425
+},
+{
+"name":"viewContentLog",
+"type":2,
+"description":"View content log",
+"rule_name":null,
+"data":"",
+"created_at":1515736425,
+"updated_at":1515736425
+},
+{
+"name":"Viewer666",
+"type":1,
+"description":"Only view!",
+"rule_name":null,
+"data":"",
+"created_at":1514285320,
+"updated_at":1514288291
+},
+{
+"name":"viewUser",
+"type":2,
+"description":"View list of users",
+"rule_name":null,
+"data":"",
+"created_at":1514298376,
+"updated_at":1514298376
+},
+{
+"name":"viewUserLog",
+"type":2,
+"description":"View users log",
+"rule_name":null,
+"data":"",
+"created_at":1514298376,
+"updated_at":1514298376
+}
+]
+}

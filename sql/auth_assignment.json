@@ -1,0 +1,14 @@
+{
+"RECORDS":[
+{
+"item_name":"Admin",
+"user_id":"1",
+"created_at":1513159476
+},
+{
+"item_name":"Manager",
+"user_id":"2",
+"created_at":1514369516
+}
+]
+}
