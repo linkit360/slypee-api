@@ -99,6 +99,7 @@ class UsersController extends \yii\web\Controller
 
                 $data["errors"] = "";
                 $data["success"] = 1;
+                $data["redirectUrl"] = Url::to(['users/view', 'id' => $model->id]);
                 return json_encode($data,JSON_PRETTY_PRINT);
 
             } else {
@@ -168,6 +169,7 @@ class UsersController extends \yii\web\Controller
 
                 $data["errors"] = "";
                 $data["success"] = 1;
+                $data["unblock"] = 1;
                 return json_encode($data,JSON_PRETTY_PRINT);
 
             } else {

@@ -48,14 +48,18 @@ AdminAsset::register($this);
 
         <div class="col s3 aside">
             <div class="collection  with-header">
-                <a href="<?=Url::to(['category/index']);?>" class="collection-item">Categories</a>
-                <a href="<?=Url::to(['content/index']);?>" class="collection-item">Content</a>
-                <a href="<?=Url::to(['users/index']);?>" class="collection-item">Users</a>
-                <a href="<?=Url::to(['customers/index']);?>" class="collection-item">Customers</a>
+                <a href="<?=Url::to(['category/']);?>" class="collection-item">Categories</a>
+                <a href="<?=Url::to(['content/']);?>" class="collection-item">Content</a>
+                <a href="<?=Url::to(['users/']);?>" class="collection-item">Users</a>
+                <a href="<?=Url::to(['customers/']);?>" class="collection-item">Customers</a>
                 <div class="collection-header"><h4>Settings</h4></div>
-                <a href="<?=Url::to(['per-page-settings/index']);?>" class="collection-item">Pagination settings</a>
-                <a href="<?=Url::to(['roles/index']);?>" class="collection-item">Roles</a>
+                <a href="<?=Url::to(['per-page-settings/']);?>" class="collection-item">Pagination settings</a>
+                <a href="<?=Url::to(['roles/']);?>" class="collection-item">Roles</a>
                 <a href="<?=Url::to(['pagination/']);?>" class="collection-item">Category log</a>
+                <a href="<?=Url::to(['pagination/']);?>" class="collection-item">Content log</a>
+                <div class="collection-header"><h4>Service</h4></div>
+                <a href="<?=Url::to(['currency_types/']);?>" class="collection-item">Currency types</a>
+                <a href="<?=Url::to(['content_types/']);?>" class="collection-item">Content types</a>
             </div>
         </div>
 

@@ -7,21 +7,21 @@ use yii\widgets\LinkPager;
 use app\modules\admin\widgets\ActionCheckbox;
 use app\modules\admin\widgets\AddNewItem;
 
-$this->title = 'Categories';
+$this->title = 'Content';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
 <div class="flex flex_centered flex_between">
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <?= AddNewItem::widget(["link" => Url::to(['category/add'])]) ?>
+    <?= AddNewItem::widget(["link" => Url::to(['content/add'])]) ?>
 </div>
 
 <div class="search-form">
     <?php $form = ActiveForm::begin([
         'layout' => 'horizontal',
         'method' => 'GET',
-        'action' => Url::to(['category/']),
+        'action' => Url::to(['content/']),
         'options' => [
             'id' => 'search-form',
         ],
@@ -128,48 +128,52 @@ $this->params['breadcrumbs'][] = $this->title;
                     <label for="itemall"></label>
                 </th>
                 <th><?= $sort->link('id', ["class" => "sort-link"]) ?></th>
-                <th><?= $sort->link('name', ["class" => "sort-link"]) ?>
+                <th><?= $sort->link('name', ["class" => "sort-link"]) ?></th>
+                <th><?= $sort->link('category', ["class" => "sort-link"]) ?></th>
+                <th><?= $sort->link('type', ["class" => "sort-link"]) ?></th>
+                <th><?= $sort->link('price', ["class" => "sort-link"]) ?></th>
+                <th><?= $sort->link('currency', ["class" => "sort-link"]) ?></th>
+                <th><?= $sort->link('rating', ["class" => "sort-link"]) ?></th>
                 <th><?= $sort->link('active', ["class" => "sort-link"]) ?></th>
-                <th><?= $sort->link('main_menu', ["class" => "sort-link"]) ?></th>
-                <th><?= $sort->link('main_page', ["class" => "sort-link"]) ?></th>
                 <th><?= $sort->link('created_at', ["class" => "sort-link"]) ?></th>
                 <th><?= $sort->link('updated_at', ["class" => "sort-link"]) ?></th>
-                <th><?= $sort->link('content', ["class" => "sort-link"]) ?></th>
                 <th style="width: 10%">&nbsp;</th>
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($categories as $category): ?>
+            <?php foreach ($content as $item): ?>
                 <tr>
                     <td>
-                        <input type="checkbox" class="filled-in action-checkbox indigo-field item-checkbox" value="<?=$category->id?>" id="item<?= $category->id?>"/>
-                        <label for="item<?= $category->id?>"></label>
+                        <input type="checkbox" class="filled-in action-checkbox indigo-field item-checkbox" value="<?=$item->id?>" id="item<?= $item->id?>"/>
+                        <label for="item<?= $item->id?>"></label>
                     </td>
-                    <td><?= $category->id ?></td>
-                    <td><?= $category->name ?></td>
-                    <td><?= $category->active ? "Yes" : "No" ?></td>
-                    <td><?= ActionCheckbox::widget(["item" => $category, "property" => "main_menu"]) ?></td>
-                    <td><?= ActionCheckbox::widget(["item" => $category, "property" => "main_page"]) ?></td>
-                    <td class="nowrap grey-text darken-1"><?= date("m-d-y", $category->created_at) ?></td>
-                    <td class="nowrap grey-text darken-1"><?= date("m-d-y", $category->updated_at) ?></td>
-                    <td><?= $category->content ?></td>
+                    <td><?= $item->id ?></td>
+                    <td><?= $item->name ?></td>
+                    <td><?= $item->category->name ?></td>
+                    <td><?= $item->contentType->name ?></td>
+                    <td><?= $item->price ?></td>
+                    <td><?= $item->currencyType->name ?></td>
+                    <td><?= $item->rating ?></td>
+                    <td><?= $item->active ? "Yes" : "No" ?></td>
+                    <td class="nowrap grey-text darken-1"><?= date("m-d-y", $item->created_at) ?></td>
+                    <td class="nowrap grey-text darken-1"><?= date("m-d-y", $item->updated_at) ?></td>
                     <td>
-                        <a class="dropdown-button nowrap" href="#!" data-constrainwidth="false" data-activates="dropdown<?= $category->id ?>">Actions<i class="material-icons right">arrow_drop_down</i></a>
-                        <ul class="dropdown-content" id="dropdown<?= $category->id ?>">
+                        <a class="dropdown-button nowrap" href="#!" data-constrainwidth="false" data-activates="dropdown<?= $item->id ?>">Actions<i class="material-icons right">arrow_drop_down</i></a>
+                        <ul class="dropdown-content" id="dropdown<?= $item->id ?>">
                             <li>
-                                <a href="<?=Url::to(['category/view', 'id' => $category->id]);?>" class="nowrap"><i class="material-icons left">remove_red_eye</i>View</a>
+                                <a href="<?=Url::to(['content/view', 'id' => $item->id]);?>" class="nowrap"><i class="material-icons left">remove_red_eye</i>View</a>
                             </li>
                             <li>
-                                <a href="<?=Url::to(['category/update', 'id' => $category->id]);?>" class="nowrap"><i class="material-icons left">edit</i>Update</a>
+                                <a href="<?=Url::to(['content/update', 'id' => $item->id]);?>" class="nowrap"><i class="material-icons left">edit</i>Update</a>
                             </li>
                             <li>
-                                <a href="<?=Url::to(['category/activate', 'id' => $category->id]);?>" class="nowrap"><i class="material-icons left">check</i><?= $category->active ? "Deactivate" : "Activate"?></a>
+                                <a href="<?=Url::to(['content/activate', 'id' => $item->id]);?>" class="nowrap"><i class="material-icons left">check</i><?= $item->active ? "Deactivate" : "Activate"?></a>
                             </li>
                             <li>
-                                <a href="<?=Url::to(['category-log/', 'category_id' => $category->id]);?>" class="nowrap"><i class="material-icons left">history</i>History</a>
+                                <a href="<?=Url::to(['content_log/', 'category_id' => $item->id]);?>" class="nowrap"><i class="material-icons left">history</i>History</a>
                             </li>
                             <li>
-                                <a href="<?=Url::to(['category/content', 'category_id' => $category->id]);?>" class="nowrap"><i class="material-icons left">list</i>Content List</a>
+                                <a href="<?=Url::to(['content/customers', 'category_id' => $item->id]);?>" class="nowrap"><i class="material-icons left">list</i>Customers List</a>
                             </li>
                         </ul>
                     </td>

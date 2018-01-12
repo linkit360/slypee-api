@@ -148,6 +148,7 @@ class RolesController extends \yii\web\Controller
 
                 $data["errors"] = "";
                 $data["success"] = 1;
+                $data["unblock"] = 1;
                 return json_encode($data,JSON_PRETTY_PRINT);
 
             } else {

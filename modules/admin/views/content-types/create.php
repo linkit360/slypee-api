@@ -6,7 +6,7 @@ use yii\widgets\Pjax;
 use yii\bootstrap\ActiveForm;
 
 $this->title = $title;
-$this->params['breadcrumbs'][] = ['label' => 'Categories', 'url' => ['category/'], 'class' => 'breadcrumb'];
+$this->params['breadcrumbs'][] = ['label' => 'Content types', 'url' => ['content_types/'], 'class' => 'breadcrumb'];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <h1><?= $this->title ?></h1>
@@ -28,33 +28,6 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <?= $form->field($model, 'name')->input('text', [
     'style' => 'width: 30%'
-]) ?>
-
-<?= $form->field($model, 'description')->textarea([
-    "rows" => 10,
-    "cols" => 10,
-    "class" => "materialize-textarea"
-]) ?>
-
-<?= $form->field($model, 'main_page')->checkbox([
-    'template' => "<div class=\"row\">{input} {label}</div>",
-    'class' => "filled-in indigo-field",
-    'uncheck' => 0,
-    'check' => 1
-]) ?>
-
-<?= $form->field($model, 'main_menu')->checkbox([
-    'template' => "<div class=\"row\">{input} {label}</div>",
-    'class' => "filled-in indigo-field",
-    'uncheck' => 0,
-    'check' => 1
-]) ?>
-
-<?= $form->field($model, 'active')->checkbox([
-    'template' => "<div class=\"row\">{input} {label}</div>",
-    'class' => "filled-in indigo-field",
-    'uncheck' => 0,
-    'check' => 1
 ]) ?>
 
 <div class="form-group flex flex_end">

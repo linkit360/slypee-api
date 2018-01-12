@@ -6,7 +6,7 @@ use yii\widgets\Pjax;
 use yii\bootstrap\ActiveForm;
 
 $this->title = $title;
-$this->params['breadcrumbs'][] = ['label' => 'Categories', 'url' => ['category/'], 'class' => 'breadcrumb'];
+$this->params['breadcrumbs'][] = ['label' => 'Content', 'url' => ['content/'], 'class' => 'breadcrumb'];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <h1><?= $this->title ?></h1>
@@ -30,24 +30,30 @@ $this->params['breadcrumbs'][] = $this->title;
     'style' => 'width: 30%'
 ]) ?>
 
+<?= $form->field($model, 'category_id')->dropDownList($categories, [
+    'class' => 'materialize-select'
+]) ?>
+
+<?= $form->field($model, 'currency_type_id')->dropDownList($currency_types, [
+    'class' => 'materialize-select'
+]) ?>
+
+<?= $form->field($model, 'content_type_id')->dropDownList($content_types, [
+    'class' => 'materialize-select'
+]) ?>
+
+<?= $form->field($model, 'price')->input('text', [
+    'style' => 'width: 30%'
+]) ?>
+
+<?= $form->field($model, 'rating')->input('text', [
+    'style' => 'width: 30%'
+]) ?>
+
 <?= $form->field($model, 'description')->textarea([
     "rows" => 10,
     "cols" => 10,
     "class" => "materialize-textarea"
-]) ?>
-
-<?= $form->field($model, 'main_page')->checkbox([
-    'template' => "<div class=\"row\">{input} {label}</div>",
-    'class' => "filled-in indigo-field",
-    'uncheck' => 0,
-    'check' => 1
-]) ?>
-
-<?= $form->field($model, 'main_menu')->checkbox([
-    'template' => "<div class=\"row\">{input} {label}</div>",
-    'class' => "filled-in indigo-field",
-    'uncheck' => 0,
-    'check' => 1
 ]) ?>
 
 <?= $form->field($model, 'active')->checkbox([

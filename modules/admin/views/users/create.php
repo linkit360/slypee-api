@@ -6,7 +6,7 @@ use yii\widgets\Pjax;
 use yii\bootstrap\ActiveForm;
 
 $this->title = $title;
-$this->params['breadcrumbs'][] = ['label' => 'Users', 'url' => ['users/index'], 'class' => 'breadcrumb'];
+$this->params['breadcrumbs'][] = ['label' => 'Users', 'url' => ['users/'], 'class' => 'breadcrumb'];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <h1><?= $this->title ?></h1>

@@ -8,6 +8,7 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\data\Sort;
 use yii\data\Pagination;
+use yii\helpers\Url;
 
 use app\models\Category;
 use app\modules\admin\models\CategoryForm;
@@ -125,7 +126,15 @@ class CategoryController extends Controller
             $model->content = 0;
             $model->created_at = time();
             $model->updated_at = $model->created_at;
-            $model->priority = 0;
+
+            // initial priority
+            $existed_priority = Category::find()->orderBy("priority DESC")->one();
+
+            if($existed_priority) {
+                $model->priority = $existed_priority->priority + 1;
+            } else {
+                $model->priority = 0;
+            }
 
             $data = [
                 "message" => "Category was successfully added"
@@ -138,6 +147,7 @@ class CategoryController extends Controller
 
                 $data["errors"] = "";
                 $data["success"] = 1;
+                $data["redirectUrl"] = Url::to(['category/view', 'id' => $model->id]);
                 return json_encode($data,JSON_PRETTY_PRINT);
 
             } else {
@@ -150,6 +160,7 @@ class CategoryController extends Controller
             }
 
         } else {
+
             return $this->render('create', [
                 'title' => "New category",
                 'btn' => "Add category",
@@ -158,9 +169,18 @@ class CategoryController extends Controller
         }
     }
 
-    public function actionView()
+    public function actionView($id)
     {
+        $model = Category::find()->where(['id' => $id])->one();
 
+        if(!$model) {
+            throw new NotFoundHttpException('Category not found' ,404);
+        }
+
+        return $this->render('view', [
+            'title' => "View category",
+            'model' => $model,
+        ]);
     }
 
     public function actionUpdate($id)
@@ -183,6 +203,7 @@ class CategoryController extends Controller
 
                 $data["errors"] = "";
                 $data["success"] = 1;
+                $data["unblock"] = 1;
                 return json_encode($data,JSON_PRETTY_PRINT);
 
             } else {

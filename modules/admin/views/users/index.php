@@ -59,7 +59,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                 <a href="<?=Url::to(['users/activate', 'id' => $user->id]);?>" class="nowrap"><i class="material-icons left">check</i><?= $user->active ? "Deactivate" : "Activate"?></a>
                             </li>
                             <li>
-                                <a href="<?=Url::to(['users-log/index', 'category_id' => $user->id]);?>" class="nowrap"><i class="material-icons left">history</i>History</a>
+                                <a href="<?=Url::to(['users-log/', 'category_id' => $user->id]);?>" class="nowrap"><i class="material-icons left">history</i>History</a>
                             </li>
                         </ul>
                     </div>

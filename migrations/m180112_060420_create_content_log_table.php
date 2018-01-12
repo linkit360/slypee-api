@@ -3,68 +3,68 @@
 use yii\db\Migration;
 
 /**
- * Handles the creation of table `category_log`.
+ * Handles the creation of table `content_log`.
  */
-class m171216_203249_create_category_log_table extends Migration
+class m180112_060420_create_content_log_table extends Migration
 {
     /**
      * @inheritdoc
      */
     public function up()
     {
-        $this->createTable('category_log', [
+        $this->createTable('content_log', [
             'id' => $this->primaryKey(),
             'datetime' => $this->integer()->notNull(),
             'user_id' => $this->integer()->notNull(),
-            'category_id' => $this->integer()->notNull(),
+            'content_id' => $this->integer()->notNull(),
             'crud_type_id' => $this->integer()->notNull(),
         ]);
 
         // creates index for column `user_id`
         $this->createIndex(
-            'idx-category_log-user_id',
-            'category_log',
+            'idx-content_log-user_id',
+            'content_log',
             'user_id'
         );
 
         // add foreign key for table `user`
         $this->addForeignKey(
-            'fk-category_log-user_id',
-            'category_log',
+            'fk-content_log-user_id',
+            'content_log',
             'user_id',
             'user',
             'id',
             'RESTRICT'
         );
 
-        // creates index for column `category_id`
+        // creates index for column `content_id`
         $this->createIndex(
-            'idx-category_log-category_id',
-            'category_log',
-            'category_id'
+            'idx-content_log-content_id',
+            'content_log',
+            'content_id'
         );
 
-        // add foreign key for table `category`
+        // add foreign key for table `content`
         $this->addForeignKey(
-            'fk-category_log-category_id',
-            'category_log',
-            'category_id',
-            'category',
+            'fk-content_log-content_id',
+            'content_log',
+            'content_id',
+            'content',
             'id',
             'RESTRICT'
         );
 
         // creates index for column `crud_type_id`
         $this->createIndex(
-            'idx-category_log-crud_type_id',
-            'category_log',
+            'idx-content_log-crud_type_id',
+            'content_log',
             'crud_type_id'
         );
 
         // add foreign key for table `crud_types`
         $this->addForeignKey(
-            'fk-category_log-crud_type_id',
-            'category_log',
+            'fk-content_log-crud_type_id',
+            'content_log',
             'crud_type_id',
             'crud_types',
             'id',
@@ -78,35 +78,35 @@ class m171216_203249_create_category_log_table extends Migration
     public function down()
     {
         $this->dropForeignKey(
-            'fk-category_log-user_id',
-            'category_log'
+            'fk-content_log-user_id',
+            'content_log'
         );
 
         $this->dropIndex(
-            'idx-category_log-user_id',
-            'category_log'
+            'idx-content_log-user_id',
+            'content_log'
         );
 
         $this->dropForeignKey(
-            'fk-category_log-category_id',
-            'category_log'
+            'fk-content_log-content_id',
+            'content_log'
         );
 
         $this->dropIndex(
-            'idx-category_log-category_id',
-            'category_log'
+            'idx-content_log-content_id',
+            'content_log'
         );
 
         $this->dropForeignKey(
-            'fk-category_log-crud_type_id',
-            'category_log'
+            'fk-content_log-crud_type_id',
+            'content_log'
         );
 
         $this->dropIndex(
-            'idx-category_log-crud_type_id',
-            'category_log'
+            'idx-content_log-crud_type_id',
+            'content_log'
         );
 
-        $this->dropTable('category_log');
+        $this->dropTable('content_log');
     }
 }

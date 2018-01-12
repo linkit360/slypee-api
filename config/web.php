@@ -20,6 +20,9 @@ $config = [
         'admin' => [
             'class' => 'app\modules\admin\Module',
         ],
+        'api' => [
+            'class' => 'app\modules\api\Module',
+        ],
     ],
     'components' => [
         'request' => [
@@ -69,7 +72,12 @@ $config = [
                 'action' => UrlNormalizer::ACTION_REDIRECT_PERMANENT
             ],
             'rules' => [
-                ['class' => 'yii\rest\UrlRule', 'controller' => 'category', 'only' => ['index', 'view']],
+                [
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'api/main',
+                    'pluralize' => false,
+                    'except' => ['create', 'view', 'update', 'delete']
+                ],
             ],
         ],
     ],

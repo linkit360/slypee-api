@@ -12,7 +12,9 @@ class AdminAsset extends AssetBundle
         'css/slypee.materialize.css',
         'css/admin.css',
         'css/zebra.css'
-    ]; // Path to admin.css file : $sourcePath/css/admin.css
+    ];
+
+    // Path to admin.css file : $sourcePath/css/admin.css
     public $js = [
         'js/admin.js',
         'js/materialize.min.js',

@@ -19,20 +19,20 @@ class DefaultController extends Controller
         $auth = Yii::$app->authManager;
 
         // добавляем разрешение "createPost"
-//        $rule = $auth->createPermission('createUser');
-//        $rule->description = 'Create a user';
+//        $rule = $auth->createPermission('createContent');
+//        $rule->description = 'Create a content';
 //        $auth->add($rule);
 //
-//        $rule = $auth->createPermission('updateUser');
-//        $rule->description = 'Update user';
+//        $rule = $auth->createPermission('updateContent');
+//        $rule->description = 'Update content';
 //        $auth->add($rule);
 //
-//        $rule = $auth->createPermission('viewUser');
-//        $rule->description = 'View list of users';
+//        $rule = $auth->createPermission('viewContent');
+//        $rule->description = 'View list of content';
 //        $auth->add($rule);
 //
-//        $rule = $auth->createPermission('viewUserLog');
-//        $rule->description = 'View users log';
+//        $rule = $auth->createPermission('viewContentLog');
+//        $rule->description = 'View content log';
 //        $auth->add($rule);
 
 //        $adminRole = $auth->getRole('admin');

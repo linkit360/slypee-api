@@ -1,3 +1,8 @@
+/* basic */
+b, strong {
+    font-weight: 600 ! important;
+}
+
 /* dropdown */
 .dropdown-wrapper {
     position: relative;
@@ -26,6 +31,15 @@
 }
 [type="checkbox"].action-checkbox+label:after, [type="checkbox"].action-checkbox+label:before {
     top: 2.5px ! important;
+}
+
+[type="checkbox"].filled-in+label:before {
+    transition: opacity .25s ease;
+    opacity: 0;
+}
+
+[type="checkbox"].filled-in:checked+label:before {
+    opacity: 1;
 }
 
 .indigo-field:checked + label:after {
@@ -235,4 +249,22 @@ button.Zebra_DatePicker_Icon {
     top: 20px;
     bottom: 20px;
     background: white;
+}
+
+/* table */
+table.striped>tbody>tr {
+    border-top: 1px solid #fff;
+}
+
+table.striped>tbody>tr:first-child {
+    border: none ! important;
+}
+
+table.striped>tbody>tr:nth-child(odd) {
+    border-color: #f2f2f2;
+}
+
+table.striped>tbody>tr.selected {
+    background: #e0e0e0 ! important;
+    border-color: #fff ! important;
 }
