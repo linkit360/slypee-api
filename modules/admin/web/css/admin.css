@@ -91,12 +91,32 @@ h1 {
 
 .table-actions {
     position: relative;
-    height: 25px;
+    height: 46px;
     box-sizing: border-box;
-    font-size: 13px;
+    font-size: 15px;
 
     opacity: 0;
     visibility: hidden;
+}
+
+.table-actions__label {
+
+}
+
+.table-actions__buttons {
+    display: none;
+}
+
+.table-actions__buttons.table-actions__buttons_active {
+    display: flex;
+}
+
+.table-actions_button {
+    margin: 0 5px;
+}
+
+.table-actions_button:last-child {
+    margin-right: 0;
 }
 
 .table-actions.table-actions_active {
@@ -111,9 +131,11 @@ h1 {
     right: 0;
     bottom: 0;
 
-    padding: 5px;
+    padding: 5px 0 5px 5px;
 
     display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .table-actions + .table-content {
@@ -213,4 +235,57 @@ h1 {
     position: absolute;
     right: 66px;
     top: 102%;
+}
+
+/* action items */
+.action-checkbox-active, .action-input-active {
+    display: none;
+}
+
+.action-checkbox-text, .action-input-text {
+    display: block;
+}
+
+.edit .action-checkbox-active, .edit .action-input-active {
+    display: block;
+}
+
+.edit .action-checkbox-text {
+    display: none;
+}
+
+.action-item-text {
+    width: 100%;
+}
+
+.action-input-el {
+    position: relative;
+}
+
+.action-input-active {
+    position: absolute;
+    white-space: nowrap;
+    left: 0;
+    top: 0;
+    right: 0;
+}
+
+.edit .action-input-text {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.action-input {
+    margin: 0 ! important;
+    height: 22px ! important;
+    width: 90% ! important;
+    min-width: 0;
+    font-size: inherit;
+
+    transition: none ! important;
+}
+
+.locked .item-checkbox+label, .edit .item-checkbox+label, .action-checkbox.disabled+label {
+    opacity: 0.5 ! important;
+    pointer-events: none ! important;
 }

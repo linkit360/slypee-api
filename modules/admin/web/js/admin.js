@@ -148,6 +148,8 @@ $(function() {
         showActions(table);
     });
 
+    // action buttons
+
     $(".table-content").on("click", ".item-checkbox", function() {
         var el = $(this);
         var parent = el.parents("tr:eq(0)");
@@ -166,12 +168,163 @@ $(function() {
         var actions = table.parent().parent().prev();
         var selected = table.children("tr.selected");
 
+
         if(selected.length > 0) {
             actions.addClass("table-actions_active");
+
+            toggleActivateButton(selected);
+            toggleDeActivateButton(selected);
+
         } else {
             actions.removeClass("table-actions_active");
         }
 
         actions.find(".selected_count").text(selected.length);
+    }
+
+    $("#activate-action").on("click", function() {
+        var el = $(this);
+        var rows = findSelectedRows(el);
+
+        if(!rows.length) {
+            return;
+        }
+
+        var data = getIdsData(rows);
+
+        $.post(el.data("href"), data, function(r) {
+
+            rows.addClass("active");
+            toggleActivateButton(rows);
+            toggleDeActivateButton(rows);
+
+            var activeLabels = rows.find(".action-checkbox-el_active").find(".action-checkbox-text");
+            activeLabels.each(function(key, val) {
+                $(val).text($(val).data("active"));
+
+            });
+
+        }, "json");
+    });
+
+    $("#deactivate-action").on("click", function() {
+        var el = $(this);
+        var rows = findSelectedRows(el);
+
+        if(!rows.length) {
+            return;
+        }
+
+        // find not empty categories
+        var content = 0;
+
+        rows.each(function(key, val) {
+           content += parseInt($(val).data("content"));
+        });
+
+        if(content > 0) {
+            if (confirm(el.data("note")) == false) return false;
+        }
+
+        var data = getIdsData(rows);
+
+        $.post(el.data("href"), data, function(r) {
+
+            rows.removeClass("active");
+            toggleActivateButton(rows);
+            toggleDeActivateButton(rows);
+
+            var activeLabels = rows.find(".action-checkbox-el_active").find(".action-checkbox-text");
+            activeLabels.each(function(key, val) {
+                $(val).text($(val).data("nonactive"));
+            });
+
+        }, "json");
+    });
+
+    $("#edit-action").on("click", function() {
+        var el = $(this);
+        var rows = findSelectedRows(el);
+
+        if(!rows.length) {
+            return;
+        }
+
+        rows.addClass("edit").siblings().addClass("locked");
+
+        $("#itemall").addClass("disabled");
+
+        el.parent().removeClass("table-actions__buttons_active").next().addClass("table-actions__buttons_active");
+
+    });
+
+    $("#cancel-edit-action").on("click", function() {
+        var el = $(this);
+
+        var rows = findSelectedRows(el);
+
+        rows.removeClass("edit").siblings().removeClass("locked");
+
+        el.parent().removeClass("table-actions__buttons_active").prev().addClass("table-actions__buttons_active");
+
+        $("#itemall").removeClass("disabled");
+
+    });
+
+    $("#apply-edit-action").on("click", function() {
+        var el = $(this);
+
+        console.log("edit blya");
+
+        var data = [];
+
+        $.post(el.data("href"), data, function(r) {
+
+        }, "json");
+    });
+
+    function findSelectedRows(el) {
+        return el.parents(".table-actions:eq(0)").next().find("tbody").find(".selected");
+    }
+
+    function getIdsData(rows) {
+        var data = [];
+
+        rows.each(function(key, val) {
+            data.push({
+                name: "ids[]",
+                value: $(val).find(".item-checkbox").val()
+            });
+        });
+
+        var csrfToken = $('meta[name="csrf-token"]').attr("content");
+
+        data.push({
+            name: "_csrf",
+            value: csrfToken
+        });
+
+        return data;
+    }
+
+    function toggleActivateButton(rows) {
+        var active = rows.filter(".active");
+
+        if(active.length > 0) {
+            $("#deactivate-action").show();
+        } else {
+            $("#deactivate-action").hide();
+        }
+    }
+
+
+    function toggleDeActivateButton(rows) {
+        var notActive = rows.filter(":not(.active)");
+
+        if(notActive.length > 0) {
+            $("#activate-action").show();
+        } else {
+            $("#activate-action").hide();
+        }
     }
 });

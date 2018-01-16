@@ -39,6 +39,7 @@ class Content extends \yii\db\ActiveRecord
             [['category_id', 'price', 'created_at', 'updated_at', 'active'], 'integer'],
             [['description'], 'string'],
             [['rating'], 'number', 'min' => 0, 'max' => 5],
+            [['price'], 'number', 'min' => 0],
             [['name'], 'string', 'max' => 128],
             [['logo'], 'string', 'max' => 255],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::className(), 'targetAttribute' => ['category_id' => 'id']],

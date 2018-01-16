@@ -5,6 +5,7 @@ use yii\helpers\Url;
 use yii\bootstrap\ActiveForm;
 use yii\widgets\LinkPager;
 use app\modules\admin\widgets\ActionCheckbox;
+use app\modules\admin\widgets\ActionInput;
 use app\modules\admin\widgets\AddNewItem;
 
 $this->title = 'Categories';
@@ -111,11 +112,31 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <div class="table-actions">
     <div class="table-actions__wrapper">
-        Selected items: <span id="selected_count" class="selected_count">0</span>
+        <div class="table-actions__label">
+            Selected items: <strong id="selected_count" class="selected_count">0</strong>
+        </div>
 
-        так тут 3 кнопочки,
+        <div class="table-actions__buttons table-actions__buttons_active">
+            <?= Html::Button("Activate selected", ['class' => 'btn btn-primary green waves-effect waves-light table-actions_button', 'id' => 'activate-action', 'data-href' => '/admin/category/activate']) ?>
+            <?= Html::Button("Deactivate selected", [
+                    'class' => 'btn btn-primary orange waves-effect waves-light table-actions_button',
+                    'id' => 'deactivate-action',
+                    'data-href' => '/admin/category/deactivate',
+                    'data-note' => 'Are you sure you want to deactivate category(s) with Content. This Content will be not available for customers.'
+                ])
+            ?>
+            <?= Html::Button("Edit selected", ['class' => 'btn btn-primary green waves-effect waves-light table-actions_button', 'id' => 'edit-action']) ?>
+        </div>
 
-        потом если что еще 2
+        <div class="table-actions__buttons">
+            <?= Html::Button("Apply changes", [
+                    'class' => 'btn btn-primary green waves-effect waves-light table-actions_button',
+                    'id' => 'apply-edit-action',
+                    'data-href' => '/admin/category/ajax-update'
+                ])
+            ?>
+            <?= Html::Button("Cancel", ['class' => 'btn btn-primary orange waves-effect waves-light table-actions_button', 'id' => 'cancel-edit-action']) ?>
+        </div>
     </div>
 </div>
 
@@ -140,14 +161,14 @@ $this->params['breadcrumbs'][] = $this->title;
         </thead>
         <tbody>
             <?php foreach ($categories as $category): ?>
-                <tr>
+                <tr <?= $category->active ? "class=\"active\"":"" ?> data-content="<?= $category->content ?>" data-id="<?= $category->id?>">
                     <td>
                         <input type="checkbox" class="filled-in action-checkbox indigo-field item-checkbox" value="<?=$category->id?>" id="item<?= $category->id?>"/>
                         <label for="item<?= $category->id?>"></label>
                     </td>
                     <td><?= $category->id ?></td>
-                    <td><?= $category->name ?></td>
-                    <td><?= $category->active ? "Yes" : "No" ?></td>
+                    <td><?= ActionInput::widget(["item" => $category, "property" => "name"]) ?></td>
+                    <td><?= ActionCheckbox::widget(["item" => $category, "property" => "active"]) ?></td>
                     <td><?= ActionCheckbox::widget(["item" => $category, "property" => "main_menu"]) ?></td>
                     <td><?= ActionCheckbox::widget(["item" => $category, "property" => "main_page"]) ?></td>
                     <td class="nowrap grey-text darken-1"><?= date("m-d-y", $category->created_at) ?></td>

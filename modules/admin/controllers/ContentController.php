@@ -133,6 +133,7 @@ class ContentController extends \yii\web\Controller
             ];
 
             if ($model->validate()) {
+                $model->logo = "test.jpg";
 
                 // все данные корректны
                 $model->save();
