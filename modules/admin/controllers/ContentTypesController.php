@@ -4,8 +4,9 @@ namespace app\modules\admin\controllers;
 
 use Yii;
 use yii\web\Controller;
-use app\models\ContentTypes;
 use yii\helpers\Url;
+
+use app\models\ContentTypes;
 
 class ContentTypesController extends \yii\web\Controller
 {

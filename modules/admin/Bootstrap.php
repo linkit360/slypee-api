@@ -15,11 +15,11 @@ class Bootstrap implements BootstrapInterface
                 // объявление правил здесь
                 // '' => 'site/default/index',
                 // '<_a:(about|contacts)>' => 'site/default/<_a>'
-                'admin/<controller:category|users|roles|content>' => 'admin/<controller>/index',
-                'admin/<controller:category|users|roles|content>/add' => 'admin/<controller>/create',
-                'admin/<controller:category|users|content>/view/<id:\d+>' => 'admin/<controller>/view',
-                'admin/<controller:category|content|users>/activate/<id:\d+>' => 'admin/<controller>/activate',
-                'admin/<controller:category|content|users>/update/<id:\d+>' => 'admin/<controller>/update',
+                'admin/<controller:category|users|roles|slider|content>' => 'admin/<controller>/index',
+                'admin/<controller:category|users|roles|slider|content>/add' => 'admin/<controller>/create',
+                'admin/<controller:category|users|slider|content>/view/<id:\d+>' => 'admin/<controller>/view',
+                'admin/<controller:category|content|slider|users>/activate/<id:\d+>' => 'admin/<controller>/activate',
+                'admin/<controller:category|content|slider|users>/update/<id:\d+>' => 'admin/<controller>/update',
 
                 'admin/<controller:category>/content/<category_id:\d+>' => 'admin/<controller>/content',
                 'admin/category-log/<category_id:\d+>' => 'admin/category-log/index',

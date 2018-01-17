@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\web\UploadedFile;
 
 /**
  * This is the model class for table "slider".
@@ -38,9 +39,15 @@ class Slider extends \yii\db\ActiveRecord
             [['priority', 'created_at', 'updated_at'], 'integer'],
             [['title', 'subtitle'], 'string', 'max' => 50],
             [['link'], 'string', 'max' => 128],
-            [['image'], 'string', 'max' => 255],
+            //[['image'], 'string', 'max' => 255],
+            [['image'], 'file', 'skipOnEmpty' => false, 'extensions' => 'png, jpg'],
             [['priority'], 'unique'],
         ];
+    }
+
+    public function formName()
+    {
+        return "";
     }
 
     /**

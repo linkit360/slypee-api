@@ -15,7 +15,9 @@ $(function() {
 
     $('#login-form').on('beforeSubmit', function(e) {
         var form = $(this);
+
         var formData = form.serialize();
+
         var btns = form.find("[type=submit]");
 
         form.find(".form-summary").empty();
@@ -67,7 +69,8 @@ $(function() {
 
     $('#edit-form').on('beforeSubmit', function(e) {
         var form = $(this);
-        var formData = form.serialize();
+        var formData = new FormData(form[0]);
+        //form.serialize();
         var btns = form.find("[type=submit]");
 
         form.find(".form-summary").empty();
@@ -79,6 +82,9 @@ $(function() {
             url: form.attr("action"),
             type: form.attr("method"),
             data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
             dataType: "json",
             success: function (data) {
                 var success = parseInt(data.success);
