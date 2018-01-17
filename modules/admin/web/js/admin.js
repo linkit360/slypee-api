@@ -132,6 +132,11 @@ $(function() {
     // action on item
     $("#itemall").on("click", function() {
         var el = $(this);
+
+        if(el.hasClass("disabled")) {
+            return false;
+        }
+
         var checked = el.prop("checked");
         var table = el.parents("table:eq(0)").children("tbody");
         var rows = table.children("tr");
@@ -154,6 +159,10 @@ $(function() {
         var el = $(this);
         var parent = el.parents("tr:eq(0)");
         var checked = el.prop("checked");
+
+        if(parent.hasClass("edit") || parent.hasClass("locked")) {
+            return false;
+        }
 
         if(checked) {
             parent.addClass("selected");
@@ -263,23 +272,89 @@ $(function() {
 
         var rows = findSelectedRows(el);
 
-        rows.removeClass("edit").siblings().removeClass("locked");
+        returnSelectedState(el, rows);
 
-        el.parent().removeClass("table-actions__buttons_active").prev().addClass("table-actions__buttons_active");
+        // rollback
+        rows.each(function(key, val) {
 
-        $("#itemall").removeClass("disabled");
+            var inputs = $(val).find(".action-input");
+            inputs.each(function(ikey, ival) {
+               $(ival).val($(ival).prev().val());
+            });
 
+            var chcks = $(val).find(".action-checkbox-el");
+            chcks.each(function(ikey, ival) {
+                var chk = $(ival).find(".action-checkbox");
+                chk.prop("checked", chk.prev().val() == "1" ? "checked":"");
+            });
+
+        });
     });
 
     $("#apply-edit-action").on("click", function() {
         var el = $(this);
-
-        console.log("edit blya");
+        var rows = findSelectedRows(el);
 
         var data = [];
 
-        $.post(el.data("href"), data, function(r) {
+        rows.each(function(key, val) {
 
+            data.push({
+                name: "ids[]",
+                value: $(val).find(".item-checkbox").val()
+            });
+
+            var inputs = $(val).find(".action-input");
+            inputs.each(function(ikey, ival) {
+                data.push({
+                    name: $(ival).attr("name") + "[]",
+                    value: $(ival).val()
+                });
+            });
+
+            var chcks = $(val).find(".action-checkbox-el");
+            chcks.each(function(ikey, ival) {
+                var chk = $(ival).find(".action-checkbox");
+                data.push({
+                    name: chk.attr("name") + "[]",
+                    value: chk.prop("checked") ? 1:0
+                });
+            });
+
+        });
+
+        data.push({
+            name: "_csrf",
+            value: $('meta[name="csrf-token"]').attr("content")
+        });
+
+        $.post(el.data("href"), data, function(r) {
+            if(r.success) {
+
+                // apply changes
+                rows.each(function(key, val) {
+                    var inputs = $(val).find(".action-input");
+                    inputs.each(function(ikey, ival) {
+                        var inputVal = $(ival).val();
+                        $(ival).prev().val(inputVal).end().parent().next().text(inputVal);
+                    });
+
+                    var chcks = $(val).find(".action-checkbox-el");
+                    chcks.each(function(ikey, ival) {
+                        var chck = $(ival).find(".action-checkbox");
+                        var chckLabel = $(ival).find(".action-checkbox-text");
+
+                        chck.prev().val(chck ? 1:0);
+                        chckLabel.text(chckLabel.data(chck ? "active":"nonactive"));
+                    });
+                });
+
+
+                returnSelectedState(el, rows);
+
+            } else {
+
+            }
         }, "json");
     });
 
@@ -326,5 +401,13 @@ $(function() {
         } else {
             $("#activate-action").hide();
         }
+    }
+
+    function returnSelectedState(el, rows) {
+        rows.removeClass("edit").siblings().removeClass("locked");
+
+        el.parent().removeClass("table-actions__buttons_active").prev().addClass("table-actions__buttons_active");
+
+        $("#itemall").removeClass("disabled");
     }
 });

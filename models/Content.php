@@ -70,6 +70,11 @@ class Content extends \yii\db\ActiveRecord
         ];
     }
 
+    public function formName()
+    {
+        return "";
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */

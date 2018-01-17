@@ -60,6 +60,7 @@ AdminAsset::register($this);
                 <div class="collection-header"><h4>Service</h4></div>
                 <a href="<?=Url::to(['currency_types/']);?>" class="collection-item">Currency types</a>
                 <a href="<?=Url::to(['content_types/']);?>" class="collection-item">Content types</a>
+                <a href="<?=Url::to(['slider/']);?>" class="collection-item">Slider</a>
             </div>
         </div>
 

@@ -275,6 +275,54 @@ class CategoryController extends Controller
 
     public function actionAjaxUpdate() {
         if(Yii::$app->request->post()) {
+
+            $errors = [];
+            $data = [];
+            $models = [];
+            $post = Yii::$app->request->post();
+            $ids = $post["ids"];
+
+            if(!$ids) {
+                throw new NotFoundHttpException('Page not found' ,404);
+            }
+
+            foreach($ids as $key => $id) {
+                $models[$id] = Category::find()->where(['id' => $id])->one();
+                if($models[$id]) {
+                    $data[$id] = array(
+                        "name" => $post["name"][$key],
+                        "active" => $post["active"][$key],
+                        "main_menu" => $post["main_menu"][$key],
+                        "main_page" => $post["main_page"][$key]
+                    );
+
+                    $models[$id]->load($data[$id]);
+
+                    // check errors
+                    if (!$models[$id]->validate()) {
+                        $errors[$id] = $models[$id]->errors;
+                    }
+                }
+            }
+
+            if(!$errors) {
+                $response = array(
+                    "success" => 1
+                );
+
+                foreach ($models as $index => $model) {
+                    $models[$index]->save();
+                }
+
+            } else {
+                $response = array(
+                    "errors" => $errors,
+                    "success" => 0
+                );
+            }
+
+            return json_encode($response,JSON_PRETTY_PRINT);
+
         } else {
             throw new NotFoundHttpException('Page not found' ,404);
         }

@@ -138,6 +138,12 @@ class ContentController extends \yii\web\Controller
                 // все данные корректны
                 $model->save();
 
+                // update category counter
+                $category_id = Yii::$app->request->post()["category_id"];
+                $category_model = Category::find()->where(['id' => $category_id])->one();
+                $category_model->updateCounters(["content" => 1]);
+
+
                 $data["errors"] = "";
                 $data["success"] = 1;
                 $data["redirectUrl"] = Url::to(['content/view', 'id' => $model->id]);
@@ -186,6 +192,7 @@ class ContentController extends \yii\web\Controller
     public function actionUpdate($id)
     {
         $model = Content::find()->where(['id' => $id])->one();
+        $old_category_id = $model->category_id;
 
         if(!$model) {
             throw new NotFoundHttpException('Content not found' ,404);
@@ -200,6 +207,17 @@ class ContentController extends \yii\web\Controller
             if ($model->validate()) {
                 // все данные корректны
                 $model->save();
+
+                // update category counter
+                $category_id = Yii::$app->request->post()["category_id"];
+
+                if($old_category_id != $category_id) {
+                    $category_model = Category::find()->where(['id' => $category_id])->one();
+                    $category_model->updateCounters(["content" => 1]);
+
+                    $old_category_model = Category::find()->where(['id' => $old_category_id])->one();
+                    $old_category_model->updateCounters(["content" => -1]);
+                }
 
                 $data["errors"] = "";
                 $data["success"] = 1;
