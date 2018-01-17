@@ -99,8 +99,44 @@ h1 {
     visibility: hidden;
 }
 
-.table-actions__label {
+.table-actions__errors {
+    position: absolute;
+    z-index: 3;
+    left: 0;
+    top: 0;
+    color: #fff;
+}
+.table-actions__errors-container {
+    padding: 0 10px ! important;
+    margin: 0;
+}
 
+.table-actions__errors-container:nth-child(2) {
+    padding-top: 10px ! important;
+}
+
+.table-actions__errors-container:last-child {
+    padding-bottom: 10px ! important;
+}
+
+.table-actions__errors-header {
+    font-weight: bold;
+    padding: 3px 10px;
+}
+
+.table-actions__errors-value {
+    padding: 3px 10px;
+}
+
+.table-actions__errors-close {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    cursor: pointer;
+}
+
+.table-actions__label {
+    padding: 3px 10px;
 }
 
 .table-actions__buttons {

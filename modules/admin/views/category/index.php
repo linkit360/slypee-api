@@ -138,6 +138,9 @@ $this->params['breadcrumbs'][] = $this->title;
             <?= Html::Button("Cancel", ['class' => 'btn btn-primary orange waves-effect waves-light table-actions_button', 'id' => 'cancel-edit-action']) ?>
         </div>
     </div>
+
+    <div class="table-actions__errors red darken-4">
+    </div>
 </div>
 
 <div class="table-content">

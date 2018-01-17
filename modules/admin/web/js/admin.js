@@ -280,6 +280,9 @@ $(function() {
 
         returnSelectedState(el, rows);
 
+        var errorsContainer = el.parents(".table-actions:eq(0)").find(".table-actions__errors");
+        errorsContainer.empty();
+
         // rollback
         rows.each(function(key, val) {
 
@@ -299,9 +302,12 @@ $(function() {
 
     $("#apply-edit-action").on("click", function() {
         var el = $(this);
+        var errorsContainer = el.parents(".table-actions:eq(0)").find(".table-actions__errors");
         var rows = findSelectedRows(el);
 
         var data = [];
+
+        errorsContainer.empty();
 
         rows.each(function(key, val) {
 
@@ -360,8 +366,31 @@ $(function() {
 
             } else {
 
+                // display errors
+                errorsContainer.html("<i class=\"table-actions__errors-close material-icons small\">clear</i>");
+
+                for(e in r.errors) {
+                    var errorContainer = $("<ul/>", {"class": "table-actions__errors-container"});
+
+                    var errorHeader = $("<li/>", {"text": "ID: " + e, "class": "table-actions__errors-header"});
+                    errorContainer.append(errorHeader);
+
+                    for(key in r.errors[e]) {
+                        var errorLabel = $("<li/>", {"text": r.errors[e][key], "class": "table-actions__errors-value"});
+                        errorContainer.append(errorLabel)
+                    }
+
+                    errorsContainer.append(errorContainer);
+                }
+
             }
         }, "json");
+    });
+
+    $(document).on("click", ".table-actions__errors-close", function() {
+        var el = $(this);
+
+        el.parent().empty();
     });
 
     function findSelectedRows(el) {
