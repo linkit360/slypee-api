@@ -6,12 +6,12 @@ use Yii;
 use yii\helpers\Url;
 use yii\web\UploadedFile;
 use yii\web\Controller;
-use yii\imagine\Image;
 
 use app\models\Slider;
 
 class SliderController extends \yii\web\Controller
 {
+
     public function actionIndex()
     {
         $query = Slider::find();
@@ -27,11 +27,10 @@ class SliderController extends \yii\web\Controller
     {
         $model = new Slider();
 
-        Image::thumbnail('uploads/coffe.jpg', 120, 120)->save(Yii::getAlias('uploads/thumb-test-image.jpg'), ['quality' => 50]);;
-
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
             $model->created_at = time();
             $model->updated_at = $model->created_at;
+            $model->image = UploadedFile::getInstance($model, 'image');
 
             // initial priority
             $existed_priority = Slider::find()->orderBy("priority DESC")->one();
@@ -50,7 +49,10 @@ class SliderController extends \yii\web\Controller
             if ($model->validate()) {
 
                 // все данные корректны
+                $new_image_name = Yii::$app->security->generateRandomString() . '.' . $model->image->extension;
+                $model->image->name = $new_image_name;
                 $model->save();
+                $model->image->saveAs($model->uploadPath.$new_image_name);
 
                 $data["errors"] = "";
                 $data["success"] = 1;
@@ -86,7 +88,10 @@ class SliderController extends \yii\web\Controller
 
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
 
-            $model->image = UploadedFile::getInstance($model, 'image');
+            $image = UploadedFile::getInstance($model, 'image');
+            if($image) {
+                $model->image = $image;
+            }
 
             $data = [
                 "message" => "Slider item was successfully updated"
@@ -95,9 +100,14 @@ class SliderController extends \yii\web\Controller
             if ($model->validate()) {
 
                 // все данные корректны
+                if($image) {
+                    $new_image_name = Yii::$app->security->generateRandomString() . '.' . $model->image->extension;
+                    $model->image->name = $new_image_name;
+                }
                 $model->save();
-
-                $model->image->saveAs('uploads/' . $model->image->baseName . '.' . $model->image->extension);
+                if($image) {
+                    $model->image->saveAs($model->uploadPath . $new_image_name);
+                }
 
                 $data["errors"] = "";
                 $data["success"] = 1;

@@ -78,6 +78,12 @@ $config = [
                     'pluralize' => false,
                     'except' => ['create', 'view', 'update', 'delete']
                 ],
+                [
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'api/slider',
+                    'pluralize' => false,
+                    'only' => ['view']
+                ],
             ],
         ],
     ],

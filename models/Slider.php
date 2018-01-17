@@ -20,6 +20,7 @@ use yii\web\UploadedFile;
  */
 class Slider extends \yii\db\ActiveRecord
 {
+    public $uploadPath = "uploads/slider/";
     /**
      * @inheritdoc
      */
@@ -34,13 +35,14 @@ class Slider extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['title', 'subtitle', 'link', 'image', 'priority', 'created_at', 'updated_at'], 'required'],
+            [['title', 'subtitle', 'link', 'priority', 'created_at', 'updated_at'], 'required'],
+            [['image'], 'required', 'on' => 'sliderCreate'],
             [['description'], 'string'],
             [['priority', 'created_at', 'updated_at'], 'integer'],
             [['title', 'subtitle'], 'string', 'max' => 50],
             [['link'], 'string', 'max' => 128],
             //[['image'], 'string', 'max' => 255],
-            [['image'], 'file', 'skipOnEmpty' => false, 'extensions' => 'png, jpg'],
+            [['image'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg'],
             [['priority'], 'unique'],
         ];
     }
@@ -65,6 +67,17 @@ class Slider extends \yii\db\ActiveRecord
             'priority' => 'Priority',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
+        ];
+    }
+
+    public function fields()
+    {
+        return [
+            // field name is the same as the attribute name
+            'title', 'subtitle', 'description', 'link',
+            'image' => function ($model) {
+                return Yii::$app->urlManager->createAbsoluteUrl(['/']).$model->uploadPath.$model->image;
+            },
         ];
     }
 }

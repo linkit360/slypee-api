@@ -45,7 +45,22 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <?= $form->field($model, 'link')->input('text', []) ?>
 
-<?= $form->field($model, 'image')->fileInput() ?>
+<?php
+    if($model->image) {
+        ?>
+    <img src="/<?= $model->uploadPath.$model->image ?>" alt="" />
+        <?php
+    }
+?>
+<div class="file-field input-field">
+    <div class="btn">
+        <span>Image</span>
+        <input type="file" name="image" />
+    </div>
+    <div class="file-path-wrapper">
+        <input class="file-path validate" type="text">
+    </div>
+</div>
 
 <div class="form-group flex flex_end">
     <a class="btn orange waves-effect waves-light" href="javascript:history.back()" style="margin-right: 20px">Cancel</a>
