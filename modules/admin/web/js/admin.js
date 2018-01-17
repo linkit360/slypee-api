@@ -355,9 +355,10 @@ $(function() {
                     chcks.each(function(ikey, ival) {
                         var chck = $(ival).find(".action-checkbox");
                         var chckLabel = $(ival).find(".action-checkbox-text");
+                        var chckStatus = chck.prop("checked");
 
-                        chck.prev().val(chck ? 1:0);
-                        chckLabel.text(chckLabel.data(chck ? "active":"nonactive"));
+                        chck.prev().val(chckStatus ? 1:0);
+                        chckLabel.text(chckLabel.data(chckStatus ? "active":"nonactive"));
                     });
                 });
 
