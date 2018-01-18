@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\web\UploadedFile;
 
 /**
  * This is the model class for table "content".
@@ -21,6 +22,8 @@ use Yii;
  */
 class Content extends \yii\db\ActiveRecord
 {
+    public $uploadPath = "uploads/content/";
+
     /**
      * @inheritdoc
      */
@@ -41,7 +44,11 @@ class Content extends \yii\db\ActiveRecord
             [['rating'], 'number', 'min' => 0, 'max' => 5],
             [['price'], 'number', 'min' => 0],
             [['name'], 'string', 'max' => 128],
-            [['logo'], 'string', 'max' => 255],
+            //[['logo'], 'string', 'max' => 255],
+            [['logo'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg'],
+            [['logo'], 'required', 'on' => 'contentCreate'],
+            [['video'], 'string', 'max' => 100],
+            [['producer'], 'string', 'max' => 50],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::className(), 'targetAttribute' => ['category_id' => 'id']],
             [['content_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => ContentTypes::className(), 'targetAttribute' => ['content_type_id' => 'id']],
             [['currency_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => CurrencyTypes::className(), 'targetAttribute' => ['currency_type_id' => 'id']],
@@ -67,6 +74,8 @@ class Content extends \yii\db\ActiveRecord
             'price' => 'Price',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
+            'video' => 'Link to video',
+            'producer' => 'Producer'
         ];
     }
 

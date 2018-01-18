@@ -177,7 +177,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <td class="nowrap grey-text darken-1"><?= date("m-d-y", $category->created_at) ?></td>
                     <td class="nowrap grey-text darken-1"><?= date("m-d-y", $category->updated_at) ?></td>
                     <td><?= $category->content ?></td>
-                    <td>
+                    <td style="text-align: right;">
                         <a class="dropdown-button nowrap" href="#!" data-constrainwidth="false" data-activates="dropdown<?= $category->id ?>">Actions<i class="material-icons right">arrow_drop_down</i></a>
                         <ul class="dropdown-content" id="dropdown<?= $category->id ?>">
                             <li>
@@ -187,13 +187,16 @@ $this->params['breadcrumbs'][] = $this->title;
                                 <a href="<?=Url::to(['category/update', 'id' => $category->id]);?>" class="nowrap"><i class="material-icons left">edit</i>Update</a>
                             </li>
                             <li>
-                                <a href="<?=Url::to(['category/activate', 'id' => $category->id]);?>" class="nowrap"><i class="material-icons left">check</i><?= $category->active ? "Deactivate" : "Activate"?></a>
+                                <a href="<?=Url::to(['category/activate', 'id' => $category->id]);?>" class="nowrap">
+                                    <i class="material-icons left">check</i>
+                                    <span><?= $category->active ? "Deactivate" : "Activate"?></span>
+                                </a>
                             </li>
                             <li>
                                 <a href="<?=Url::to(['category-log/', 'category_id' => $category->id]);?>" class="nowrap"><i class="material-icons left">history</i>History</a>
                             </li>
                             <li>
-                                <a href="<?=Url::to(['category/content', 'category_id' => $category->id]);?>" class="nowrap"><i class="material-icons left">list</i>Content List</a>
+                                <a href="<?=Url::to(['content/', 'category' => $category->id]);?>" class="nowrap"><i class="material-icons left">list</i>Content List</a>
                             </li>
                         </ul>
                     </td>

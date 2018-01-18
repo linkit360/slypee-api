@@ -42,8 +42,9 @@ $this->params['breadcrumbs'][] = $this->title;
     'class' => 'materialize-select'
 ]) ?>
 
+<?= $form->field($model, 'producer')->input('text', []) ?>
+
 <?= $form->field($model, 'price')->input('text', [
-    'style' => 'width: 30%'
 ]) ?>
 
 <?= $form->field($model, 'rating')->input('text', [
@@ -55,6 +56,30 @@ $this->params['breadcrumbs'][] = $this->title;
     "cols" => 10,
     "class" => "materialize-textarea"
 ]) ?>
+
+<?= $form->field($model, 'video')->input('text', [
+    'style' => 'width: 30%'
+]) ?>
+
+<?php
+if($model->logo) {
+    ?>
+    <img src="/<?= $model->uploadPath.$model->logo ?>" alt="" style="max-width: 100%" />
+    <?php
+}
+?>
+
+<div class="field-logo">
+    <div class="file-field input-field">
+        <div class="btn">
+            <span>Logo</span>
+            <input type="file" name="logo" />
+        </div>
+        <div class="file-path-wrapper">
+            <input class="file-path validate" type="text">
+        </div>
+    </div>
+</div>
 
 <?= $form->field($model, 'active')->checkbox([
     'template' => "<div class=\"row\">{input} {label}</div>",

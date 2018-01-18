@@ -52,15 +52,19 @@ AdminAsset::register($this);
                 <a href="<?=Url::to(['content/']);?>" class="collection-item">Content</a>
                 <a href="<?=Url::to(['users/']);?>" class="collection-item">Users</a>
                 <a href="<?=Url::to(['customers/']);?>" class="collection-item">Customers</a>
+                <a href="<?=Url::to(['slider/']);?>" class="collection-item">Slider</a>
                 <div class="collection-header"><h4>Settings</h4></div>
                 <a href="<?=Url::to(['per-page-settings/']);?>" class="collection-item">Pagination settings</a>
                 <a href="<?=Url::to(['roles/']);?>" class="collection-item">Roles</a>
                 <a href="<?=Url::to(['pagination/']);?>" class="collection-item">Category log</a>
                 <a href="<?=Url::to(['pagination/']);?>" class="collection-item">Content log</a>
+                <a href="<?=Url::to(['pagination/']);?>" class="collection-item">Slider log</a>
+                <a href="<?=Url::to(['pagination/']);?>" class="collection-item">Customers log</a>
+                <a href="<?=Url::to(['pagination/']);?>" class="collection-item">Users log</a>
+                <a href="<?=Url::to(['pagination/']);?>" class="collection-item">Customers operations</a>
                 <div class="collection-header"><h4>Service</h4></div>
                 <a href="<?=Url::to(['currency_types/']);?>" class="collection-item">Currency types</a>
                 <a href="<?=Url::to(['content_types/']);?>" class="collection-item">Content types</a>
-                <a href="<?=Url::to(['slider/']);?>" class="collection-item">Slider</a>
             </div>
         </div>
 

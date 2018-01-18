@@ -2,14 +2,14 @@
 
 namespace app\modules\api\controllers;
 
-use app\models\Slider;
+use app\models\Category;
 use yii\data\ActiveDataProvider;
 use yii\rest\ActiveController;
 
 
-class SliderController extends ActiveController
+class CategoryController extends ActiveController
 {
-    public $modelClass = 'app\models\Slider';
+    public $modelClass = 'app\models\Category';
 
     public function actions()
     {
@@ -17,7 +17,7 @@ class SliderController extends ActiveController
 
         $actions["index"]["prepareDataProvider"] = function() {
             return new ActiveDataProvider([
-                'query' => Slider::find()->andWhere(["active" => 1]),
+                'query' => Category::find()->andWhere(["active" => 1]),
                 'sort' => [
                     'defaultOrder' => [
                         'priority' => SORT_ASC
@@ -39,5 +39,9 @@ class SliderController extends ActiveController
                 ],
             ],
         ];
+    }
+
+    public function actionMenu() {
+        return Category::find()->select(["id", "name"])->andWhere(["=", "main_menu", 1])->andWhere(["=", "active", 1])->orderBy("priority")->all();
     }
 }

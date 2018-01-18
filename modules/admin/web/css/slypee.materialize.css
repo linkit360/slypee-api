@@ -64,6 +64,15 @@ b, strong {
 
 }
 
+.input-field.file-field {
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+
+.input-field.file-field .btn {
+    background: #4CAF50;
+}
+
 .checkbox-group label.checkbox-group-el {
     position: static;
     transform: translateY(0);

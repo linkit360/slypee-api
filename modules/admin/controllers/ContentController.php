@@ -4,12 +4,13 @@ namespace app\modules\admin\controllers;
 
 use Yii;
 use DateTime;
-use yii\web\Controller;
-use yii\web\NotFoundHttpException;
 use yii\data\Sort;
 use yii\data\Pagination;
 use yii\helpers\Url;
 use yii\helpers\ArrayHelper;
+use yii\web\Controller;
+use yii\web\NotFoundHttpException;
+use yii\web\UploadedFile;
 
 use app\models\Category;
 use app\models\CurrencyTypes;
@@ -123,20 +124,23 @@ class ContentController extends \yii\web\Controller
     public function actionCreate()
     {
         $model = new Content;
+        $model->scenario = 'contentCreate';
 
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
             $model->created_at = time();
             $model->updated_at = $model->created_at;
+            $model->logo = UploadedFile::getInstance($model, 'logo');
 
             $data = [
                 "message" => "Content was successfully added"
             ];
 
             if ($model->validate()) {
-                $model->logo = "test.jpg";
 
-                // все данные корректны
+                $new_logo_name = Yii::$app->security->generateRandomString() . '.' . $model->logo->extension;
+                $model->logo->name = $new_logo_name;
                 $model->save();
+                $model->logo->saveAs($model->uploadPath.$new_logo_name);
 
                 // update category counter
                 $category_id = Yii::$app->request->post()["category_id"];
@@ -192,6 +196,7 @@ class ContentController extends \yii\web\Controller
     public function actionUpdate($id)
     {
         $model = Content::find()->where(['id' => $id])->one();
+        //$model->scenario = 'contentUpdate';
         $old_category_id = $model->category_id;
 
         if(!$model) {
@@ -200,13 +205,26 @@ class ContentController extends \yii\web\Controller
 
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
 
+            $logo = UploadedFile::getInstance($model, 'logo');
+
+            if($logo) {
+                $model->logo = $logo;
+            }
+
             $data = [
                 "message" => "Content was successfully updated"
             ];
 
             if ($model->validate()) {
                 // все данные корректны
+                if($logo) {
+                    $new_logo_name = Yii::$app->security->generateRandomString() . '.' . $model->logo->extension;
+                    $model->logo->name = $new_logo_name;
+                }
                 $model->save();
+                if($logo) {
+                    $model->logo->saveAs($model->uploadPath . $new_logo_name);
+                }
 
                 // update category counter
                 $category_id = Yii::$app->request->post()["category_id"];

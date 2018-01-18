@@ -82,7 +82,14 @@ $config = [
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'api/slider',
                     'pluralize' => false,
-                    'only' => ['view']
+                    'only' => ['index']
+                ],
+                [
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'api/category',
+                    'pluralize' => false,
+                    'only' => ['index', 'view'],
+                    'extraPatterns' => ['GET menu' => 'category/menu']
                 ],
             ],
         ],

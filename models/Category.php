@@ -76,6 +76,14 @@ class Category extends \yii\db\ActiveRecord
         return "";
     }
 
+    public function fields()
+    {
+        return [
+            // field name is the same as the attribute name
+            'id', 'name', 'description', 'content'
+        ];
+    }
+
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);

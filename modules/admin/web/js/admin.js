@@ -112,7 +112,9 @@ $(function() {
                         var errorLabel = $("<div/>", {"class": "help-block help-block-error", "text": data.errors[e]});
                         if(field.length) {
                             field.addClass("error").removeClass("has-success");
+
                             field.find(".input-field").append(errorLabel);
+
                         } else {
                             form.find(".form-summary").append(errorLabel);
                         }

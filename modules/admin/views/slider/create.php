@@ -48,19 +48,29 @@ $this->params['breadcrumbs'][] = $this->title;
 <?php
     if($model->image) {
         ?>
-    <img src="/<?= $model->uploadPath.$model->image ?>" alt="" />
+    <img src="/<?= $model->uploadPath.$model->image ?>" alt="" style="max-width: 100%" />
         <?php
     }
 ?>
-<div class="file-field input-field">
-    <div class="btn">
-        <span>Image</span>
-        <input type="file" name="image" />
-    </div>
-    <div class="file-path-wrapper">
-        <input class="file-path validate" type="text">
+
+<div class="field-image">
+    <div class="file-field input-field">
+        <div class="btn">
+            <span>Image</span>
+            <input type="file" name="image" />
+        </div>
+        <div class="file-path-wrapper">
+            <input class="file-path validate" type="text">
+        </div>
     </div>
 </div>
+
+<?= $form->field($model, 'active')->checkbox([
+    'template' => "<div class=\"row\">{input} {label}</div>",
+    'class' => "filled-in indigo-field",
+    'uncheck' => 0,
+    'check' => 1
+]) ?>
 
 <div class="form-group flex flex_end">
     <a class="btn orange waves-effect waves-light" href="javascript:history.back()" style="margin-right: 20px">Cancel</a>

@@ -157,7 +157,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <td><?= $item->active ? "Yes" : "No" ?></td>
                     <td class="nowrap grey-text darken-1"><?= date("m-d-y", $item->created_at) ?></td>
                     <td class="nowrap grey-text darken-1"><?= date("m-d-y", $item->updated_at) ?></td>
-                    <td>
+                    <td style="text-align: right;">
                         <a class="dropdown-button nowrap" href="#!" data-constrainwidth="false" data-activates="dropdown<?= $item->id ?>">Actions<i class="material-icons right">arrow_drop_down</i></a>
                         <ul class="dropdown-content" id="dropdown<?= $item->id ?>">
                             <li>

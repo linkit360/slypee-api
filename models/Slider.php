@@ -36,14 +36,15 @@ class Slider extends \yii\db\ActiveRecord
     {
         return [
             [['title', 'subtitle', 'link', 'priority', 'created_at', 'updated_at'], 'required'],
-            [['image'], 'required', 'on' => 'sliderCreate'],
             [['description'], 'string'],
-            [['priority', 'created_at', 'updated_at'], 'integer'],
+            [['priority', 'created_at', 'updated_at', 'active'], 'integer'],
             [['title', 'subtitle'], 'string', 'max' => 50],
             [['link'], 'string', 'max' => 128],
             //[['image'], 'string', 'max' => 255],
             [['image'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg'],
+            [['image'], 'required', 'on' => 'sliderCreate'],
             [['priority'], 'unique'],
+            [['priority', 'active'], 'filter', 'filter' => 'intval']
         ];
     }
 
@@ -67,6 +68,7 @@ class Slider extends \yii\db\ActiveRecord
             'priority' => 'Priority',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
+            'active' => 'Active',
         ];
     }
 
