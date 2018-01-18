@@ -240,6 +240,7 @@ $(function() {
             toggleDeActivateButton(selected);
 
         } else {
+            $("#itemall").prop("checked", false);
             actions.removeClass("table-actions_active");
         }
 

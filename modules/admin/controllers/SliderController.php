@@ -49,7 +49,6 @@ class SliderController extends \yii\web\Controller
 
             if ($model->validate()) {
 
-
                 // все данные корректны
                 $new_image_name = Yii::$app->security->generateRandomString() . '.' . $model->image->extension;
                 $model->image->name = $new_image_name;

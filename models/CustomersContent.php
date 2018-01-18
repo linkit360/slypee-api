@@ -98,4 +98,9 @@ class CustomersContent extends \yii\db\ActiveRecord
     {
         return $this->hasOne(ContentTypes::className(), ['id' => 'type_id']);
     }
+
+    public function formName()
+    {
+        return "";
+    }
 }
