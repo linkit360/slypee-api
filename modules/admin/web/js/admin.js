@@ -137,6 +137,53 @@ $(function() {
 
     $("#search-form__type").trigger("change");
 
+    // activate links
+    $(document).on("click", ".activate", function(e) {
+        e.preventDefault();
+
+        var el = $(this);
+        var span = el.children("span");
+        var data = [];
+
+        var csrfToken = $('meta[name="csrf-token"]').attr("content");
+
+        data.push({
+            name: "_csrf",
+            value: csrfToken
+        });
+
+        $.post(el.attr("href"), data, function(r) {
+            var row = el.parents("tr:eq(0)");
+            var chx = row.find(".action-checkbox-el_active");
+
+            if(r.status == 1) {
+                span.text(span.data("active"));
+                row.addClass("active");
+            } else {
+                span.text(span.data("nonactive"));
+                row.removeClass("active");
+            }
+
+            if(chx.length) {
+                var chx_el = chx.find("input:checkbox");
+                var chx_label = chx.find(".action-checkbox-text");
+
+                chx_el.prop("checked", r.status == 1 ? true:false);
+                chx_label.text(chx_label.data(r.status == 1 ? "active":"nonactive"));
+            }
+
+            var rows = row.parent().find(".selected");
+            if(row.length) {
+                toggleActivateButton(rows);
+                toggleDeActivateButton(rows);
+            }
+
+
+        }, "json");
+
+        return false;
+    });
+
     // action on item
     $("#itemall").on("click", function() {
         var el = $(this);
@@ -199,6 +246,8 @@ $(function() {
         actions.find(".selected_count").text(selected.length);
     }
 
+    // TODO lock dropdowns when edit
+
     $("#activate-action").on("click", function() {
         var el = $(this);
         var rows = findSelectedRows(el);
@@ -219,6 +268,12 @@ $(function() {
             activeLabels.each(function(key, val) {
                 $(val).text($(val).data("active"));
 
+            });
+
+            var activeLinks = rows.find(".activate");
+            activeLinks.each(function(key, val) {
+                var span = $(val).find("span");
+                span.text(span.data("active"));
             });
 
         }, "json");
@@ -254,6 +309,12 @@ $(function() {
             var activeLabels = rows.find(".action-checkbox-el_active").find(".action-checkbox-text");
             activeLabels.each(function(key, val) {
                 $(val).text($(val).data("nonactive"));
+            });
+
+            var activeLinks = rows.find(".activate");
+            activeLinks.each(function(key, val) {
+                var span = $(val).find("span");
+                span.text(span.data("nonactive"));
             });
 
         }, "json");
@@ -347,6 +408,8 @@ $(function() {
 
                 // apply changes
                 rows.each(function(key, val) {
+                    var activeLinkStatus = null;
+                    var isActive = false;
                     var inputs = $(val).find(".action-input");
                     inputs.each(function(ikey, ival) {
                         var inputVal = $(ival).val();
@@ -361,10 +424,26 @@ $(function() {
 
                         chck.prev().val(chckStatus ? 1:0);
                         chckLabel.text(chckLabel.data(chckStatus ? "active":"nonactive"));
+
+
+                        if(chck.attr("name") == "active") {
+                            activeLinkStatus = chckStatus ? "active":"nonactive";
+                            isActive = chckStatus ? true:false;
+                        }
                     });
+
+                    var activeLink = $(val).find(".activate span");
+                    activeLink.text(activeLink.data(activeLinkStatus));
+
+                    if(isActive) {
+                        $(val).addClass("active");
+                    } else {
+                        $(val).removeClass("active");
+                    }
                 });
 
-
+                toggleActivateButton(rows);
+                toggleDeActivateButton(rows);
                 returnSelectedState(el, rows);
 
             } else {

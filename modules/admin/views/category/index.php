@@ -187,9 +187,9 @@ $this->params['breadcrumbs'][] = $this->title;
                                 <a href="<?=Url::to(['category/update', 'id' => $category->id]);?>" class="nowrap"><i class="material-icons left">edit</i>Update</a>
                             </li>
                             <li>
-                                <a href="<?=Url::to(['category/activate', 'id' => $category->id]);?>" class="nowrap">
+                                <a href="<?=Url::to(['category/reactivate', 'id' => $category->id]);?>" class="nowrap activate">
                                     <i class="material-icons left">check</i>
-                                    <span><?= $category->active ? "Deactivate" : "Activate"?></span>
+                                    <span data-active="Deactivate" data-nonactive="Activate"><?= $category->active ? "Deactivate" : "Activate"?></span>
                                 </a>
                             </li>
                             <li>

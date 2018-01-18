@@ -67,7 +67,10 @@ $this->params['breadcrumbs'][] = $this->title;
                             <a href="<?=Url::to(['slider/update', 'id' => $item->id]);?>" class="nowrap"><i class="material-icons left">edit</i>Update</a>
                         </li>
                         <li>
-                            <a href="<?=Url::to(['slider/activate', 'id' => $item->id]);?>" class="nowrap"><i class="material-icons left">check</i><?= $item->active ? "Deactivate" : "Activate"?></a>
+                            <a href="<?=Url::to(['slider/reactivate', 'id' => $item->id]);?>" class="nowrap activate">
+                                <i class="material-icons left">check</i>
+                                <span data-active="Deactivate" data-nonactive="Activate"><?= $item->active ? "Deactivate" : "Activate"?></span>
+                            </a>
                         </li>
                         <li>
                             <a href="<?=Url::to(['slider-log/', 'slider_id' => $item->id]);?>" class="nowrap"><i class="material-icons left">history</i>History</a>

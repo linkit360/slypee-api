@@ -140,7 +140,7 @@ h1 {
 }
 
 .table-actions__label {
-    padding: 3px 10px;
+    padding: 3px 10px 3px 0;
 }
 
 .table-actions_lonely .table-actions__label {
@@ -286,6 +286,11 @@ h1 {
 }
 
 /* action items */
+.edit .dropdown-button, .locked .dropdown-button {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
 .action-checkbox-active, .action-input-active {
     display: none;
 }

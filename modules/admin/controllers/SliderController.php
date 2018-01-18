@@ -198,4 +198,20 @@ class SliderController extends \yii\web\Controller
             throw new NotFoundHttpException('Page not found' ,404);
         }
     }
+
+    public function actionReactivate($id)
+    {
+        if (Yii::$app->request->isPost) {
+            $model = Slider::find()->where(['id' => $id])->one();
+
+            if (!$model) {
+                throw new NotFoundHttpException('Slider item not found', 404);
+            } else {
+                $model->load(array("active" => $model->active ? 0 : 1));
+                $model->save();
+
+                return json_encode(["status" => $model->active ? 1:-1],JSON_PRETTY_PRINT);
+            }
+        }
+    }
 }

@@ -1,6 +1,5 @@
 <div class="action-checkbox-el action-checkbox-el_<?= $property ?>">
     <div class="action-checkbox-active">
-        <input type="hidden" value="<?=$item[$property] ? 1:0?>" />
         <input type="checkbox" name="<?= $property ?>" class="filled-in action-checkbox indigo-field" <?= $item[$property] ? "checked=\"checked\"":"" ?> value="<?=$item["id"]?>" id="item<?= $property ?><?=$item["id"]?>" />
         <label for="item<?= $property ?><?=$item["id"]?>"></label>
     </div>
