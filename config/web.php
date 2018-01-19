@@ -88,8 +88,11 @@ $config = [
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'api/category',
                     'pluralize' => false,
-                    'only' => ['index', 'view', 'menu'],
-                    'extraPatterns' => ['GET menu' => 'category/menu']
+                    'only' => ['index', 'view', 'menu', 'info'],
+                    'extraPatterns' => [
+                        'GET menu' => 'category/menu',
+                        'GET info/<slug:[\w-]+>' => 'info'
+                    ]
                 ],
                 [
                     'class' => 'yii\rest\UrlRule',

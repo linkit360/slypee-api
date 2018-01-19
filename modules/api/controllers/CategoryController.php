@@ -5,7 +5,7 @@ namespace app\modules\api\controllers;
 use app\models\Category;
 use yii\data\ActiveDataProvider;
 use yii\rest\ActiveController;
-
+use yii\web\NotFoundHttpException;
 
 class CategoryController extends ActiveController
 {
@@ -42,6 +42,16 @@ class CategoryController extends ActiveController
     }
 
     public function actionMenu() {
-        return Category::find()->select(["id", "name"])->andWhere(["=", "main_menu", 1])->andWhere(["=", "active", 1])->orderBy("priority")->all();
+        return Category::find()->select(["id", "name", "slug"])->andWhere(["=", "main_menu", 1])->andWhere(["=", "active", 1])->orderBy("priority")->all();
+    }
+
+    public function actionInfo($slug)
+    {
+        $category = Category::find()->where(["active" => 1, "slug" => $slug])->one();
+        if(!$category) {
+            throw new NotFoundHttpException('Content not found', 404);
+        }
+
+        return $category;
     }
 }

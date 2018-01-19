@@ -38,6 +38,10 @@ class ContentController extends ActiveController
 
     public function actionIndex()
     {
+        $headers = Yii::$app->request->headers;
+
+        return $headers;
+
         $preparedContent = [];
         $content = Content::find()->where(['active' => 1])->all();
 

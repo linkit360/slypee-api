@@ -12,7 +12,7 @@ class m180118_070342_add_producer_column_to_content_table extends Migration
      */
     public function up()
     {
-        $this->addColumn('content', 'producer', $this->string(50));
+        $this->addColumn('content', 'producer', $this->string(100));
     }
 
     /**

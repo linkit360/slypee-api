@@ -3,6 +3,8 @@
 namespace app\models;
 
 use Yii;
+use yii\behaviors\SluggableBehavior;
+
 use app\models\CategoryLog;
 use app\models\CrudTypes;
 
@@ -22,6 +24,16 @@ use app\models\CrudTypes;
  */
 class Category extends \yii\db\ActiveRecord
 {
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => SluggableBehavior::className(),
+                'attribute' => 'name',
+            ],
+        ];
+    }
+
     /**
      * @inheritdoc
      */
@@ -80,7 +92,7 @@ class Category extends \yii\db\ActiveRecord
     {
         return [
             // field name is the same as the attribute name
-            'id', 'name', 'description', 'content'
+            'id', 'name', 'description', 'content', 'slug'
         ];
     }
 
