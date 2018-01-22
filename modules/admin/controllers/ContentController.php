@@ -142,12 +142,6 @@ class ContentController extends \yii\web\Controller
                 $model->save();
                 $model->logo->saveAs($model->uploadPath.$new_logo_name);
 
-                // update category counter
-                $category_id = Yii::$app->request->post()["category_id"];
-                $category_model = Category::find()->where(['id' => $category_id])->one();
-                $category_model->updateCounters(["content" => 1]);
-
-
                 $data["errors"] = "";
                 $data["success"] = 1;
                 $data["redirectUrl"] = Url::to(['content/view', 'id' => $model->id]);
@@ -197,7 +191,6 @@ class ContentController extends \yii\web\Controller
     {
         $model = Content::find()->where(['id' => $id])->one();
         //$model->scenario = 'contentUpdate';
-        $old_category_id = $model->category_id;
 
         if(!$model) {
             throw new NotFoundHttpException('Content not found' ,404);
@@ -224,17 +217,6 @@ class ContentController extends \yii\web\Controller
                 $model->save();
                 if($logo) {
                     $model->logo->saveAs($model->uploadPath . $new_logo_name);
-                }
-
-                // update category counter
-                $category_id = Yii::$app->request->post()["category_id"];
-
-                if($old_category_id != $category_id) {
-                    $category_model = Category::find()->where(['id' => $category_id])->one();
-                    $category_model->updateCounters(["content" => 1]);
-
-                    $old_category_model = Category::find()->where(['id' => $old_category_id])->one();
-                    $old_category_model->updateCounters(["content" => -1]);
                 }
 
                 $data["errors"] = "";
@@ -264,6 +246,130 @@ class ContentController extends \yii\web\Controller
                 'btn' => "Save changes",
                 'model' => $model,
             ]);
+        }
+    }
+
+    public function actionActivate()
+    {
+        if(Yii::$app->request->post()) {
+            $post = Yii::$app->request->post();
+            $ids = $post["ids"];
+
+            if(!$ids) {
+                throw new NotFoundHttpException('Page not found' ,404);
+            }
+
+            foreach($ids as $id) {
+                $model = Content::find()->where(['id' => $id])->one();
+                if($model) {
+                    $model->load(array("active" => 1));
+                    $model->save();
+                }
+            }
+
+            return json_encode([],JSON_PRETTY_PRINT);
+
+        } else {
+            throw new NotFoundHttpException('Page not found' ,404);
+        }
+    }
+
+    public function actionDeactivate()
+    {
+        if(Yii::$app->request->post()) {
+            $post = Yii::$app->request->post();
+            $ids = $post["ids"];
+
+            if(!$ids) {
+                throw new NotFoundHttpException('Page not found' ,404);
+            }
+
+            foreach($ids as $id) {
+                $model = Content::find()->where(['id' => $id])->one();
+                if($model) {
+                    $model->load(array("active" => 0));
+                    $model->save();
+                }
+            }
+
+            return json_encode([],JSON_PRETTY_PRINT);
+
+        } else {
+            throw new NotFoundHttpException('Page not found' ,404);
+        }
+    }
+
+    public function actionAjaxUpdate() {
+        if(Yii::$app->request->post()) {
+
+            $errors = [];
+            $data = [];
+            $models = [];
+            $post = Yii::$app->request->post();
+            $ids = $post["ids"];
+
+            if(!$ids) {
+                throw new NotFoundHttpException('Page not found' ,404);
+            }
+
+            foreach($ids as $key => $id) {
+                $models[$id] = Content::find()->where(['id' => $id])->one();
+                if($models[$id]) {
+
+                    $data[$id] = array(
+                        "name" => $post["name"][$key],
+                        "active" => $post["active"][$key],
+                        "price" => $post["price"][$key],
+                        "rating" => $post["rating"][$key]
+                    );
+
+                    $models[$id]->load($data[$id]);
+
+                    // check errors
+                    if (!$models[$id]->validate()) {
+                        $errors[$id] = $models[$id]->errors;
+                    }
+                }
+            }
+
+            if(!$errors) {
+                $response = array(
+                    "success" => 1
+                );
+
+                foreach ($models as $index => $model) {
+                    if($models[$index]) {
+                        $models[$index]->save();
+                    }
+                }
+
+            } else {
+                $response = array(
+                    "errors" => $errors,
+                    "success" => 0
+                );
+            }
+
+            return json_encode($response,JSON_PRETTY_PRINT);
+
+        } else {
+            throw new NotFoundHttpException('Page not found' ,404);
+        }
+    }
+
+    public function actionReactivate($id)
+    {
+        if (Yii::$app->request->isPost) {
+            $model = Content::find()->where(['id' => $id])->one();
+
+            if (!$model) {
+                throw new NotFoundHttpException('Content not found', 404);
+            } else {
+                $model->load(array("active" => $model->active ? 0 : 1));
+                $model->save();
+
+                return json_encode(["status" => $model->active ? 1:-1],JSON_PRETTY_PRINT);
+            }
         }
     }
 

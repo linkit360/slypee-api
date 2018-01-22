@@ -5,6 +5,7 @@ use yii\helpers\Url;
 use yii\bootstrap\ActiveForm;
 use yii\widgets\LinkPager;
 use app\modules\admin\widgets\ActionCheckbox;
+use app\modules\admin\widgets\ActionInput;
 use app\modules\admin\widgets\AddNewItem;
 
 $this->title = 'Content';
@@ -111,11 +112,34 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <div class="table-actions">
     <div class="table-actions__wrapper">
-        Selected items: <span id="selected_count" class="selected_count">0</span>
+        <div class="table-actions__label">
+            Selected items: <strong id="selected_count" class="selected_count">0</strong>
+        </div>
 
-        так тут 3 кнопочки,
+        <div class="table-actions__buttons table-actions__buttons_active">
+            <?= Html::Button("Activate selected", ['class' => 'btn btn-primary green waves-effect waves-light table-actions_button', 'id' => 'activate-action', 'data-href' => '/admin/content/activate']) ?>
+            <?= Html::Button("Deactivate selected", [
+                'class' => 'btn btn-primary orange waves-effect waves-light table-actions_button',
+                'id' => 'deactivate-action',
+                'data-href' => '/admin/content/deactivate',
+                'data-note' => 'Are you sure you want to deactivate category(s) with Content. This Content will be not available for customers.'
+            ])
+            ?>
+            <?= Html::Button("Edit selected", ['class' => 'btn btn-primary green waves-effect waves-light table-actions_button', 'id' => 'edit-action']) ?>
+        </div>
 
-        потом если что еще 2
+        <div class="table-actions__buttons">
+            <?= Html::Button("Apply changes", [
+                'class' => 'btn btn-primary green waves-effect waves-light table-actions_button',
+                'id' => 'apply-edit-action',
+                'data-href' => '/admin/content/ajax-update'
+            ])
+            ?>
+            <?= Html::Button("Cancel", ['class' => 'btn btn-primary orange waves-effect waves-light table-actions_button', 'id' => 'cancel-edit-action']) ?>
+        </div>
+    </div>
+
+    <div class="table-actions__errors red darken-4">
     </div>
 </div>
 
@@ -142,19 +166,19 @@ $this->params['breadcrumbs'][] = $this->title;
         </thead>
         <tbody>
             <?php foreach ($content as $item): ?>
-                <tr>
+                <tr <?= $item->active ? "class=\"active\"":"" ?> data-id="<?= $item->id?>">
                     <td>
                         <input type="checkbox" class="filled-in action-checkbox indigo-field item-checkbox" value="<?=$item->id?>" id="item<?= $item->id?>"/>
                         <label for="item<?= $item->id?>"></label>
                     </td>
                     <td><?= $item->id ?></td>
-                    <td><?= $item->name ?></td>
+                    <td><?= ActionInput::widget(["item" => $item, "property" => "name"]) ?></td>
                     <td><?= $item->category->name ?></td>
                     <td><?= $item->contentType->name ?></td>
-                    <td><?= $item->price ?></td>
+                    <td><?= ActionInput::widget(["item" => $item, "property" => "price"]) ?></td>
                     <td><?= $item->currencyType->name ?></td>
-                    <td><?= $item->rating ?></td>
-                    <td><?= $item->active ? "Yes" : "No" ?></td>
+                    <td><?= ActionInput::widget(["item" => $item, "property" => "rating"]) ?></td>
+                    <td><?= ActionCheckbox::widget(["item" => $item, "property" => "active"]) ?></td>
                     <td class="nowrap grey-text darken-1"><?= date("m-d-y", $item->created_at) ?></td>
                     <td class="nowrap grey-text darken-1"><?= date("m-d-y", $item->updated_at) ?></td>
                     <td style="text-align: right;">
@@ -167,7 +191,10 @@ $this->params['breadcrumbs'][] = $this->title;
                                 <a href="<?=Url::to(['content/update', 'id' => $item->id]);?>" class="nowrap"><i class="material-icons left">edit</i>Update</a>
                             </li>
                             <li>
-                                <a href="<?=Url::to(['content/activate', 'id' => $item->id]);?>" class="nowrap"><i class="material-icons left">check</i><?= $item->active ? "Deactivate" : "Activate"?></a>
+                                <a href="<?=Url::to(['content/reactivate', 'id' => $item->id]);?>" class="nowrap activate">
+                                    <i class="material-icons left">check</i>
+                                    <span data-active="Deactivate" data-nonactive="Activate"><?= $item->active ? "Deactivate" : "Activate"?></span>
+                                </a>
                             </li>
                             <li>
                                 <a href="<?=Url::to(['content_log/', 'category_id' => $item->id]);?>" class="nowrap"><i class="material-icons left">history</i>History</a>

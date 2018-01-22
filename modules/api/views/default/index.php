@@ -33,6 +33,9 @@ $baseUrl = "{$_SERVER["REQUEST_SCHEME"]}://{$_SERVER["HTTP_HOST"]}/api/";
                 Headers for order and pagination .... coming soon
             </p>
         </li>
+        <li class="api-list__item">Search</li>
+        <li class="api-list__item">Top charts</li>
+        <li class="api-list__item">Top charts by Category</li>
         <li class="api-list__item">
             <a href="<?=$baseUrl."content/ID"?>"><?=$baseUrl."content/ID"?></a>
             <p>
@@ -50,6 +53,7 @@ $baseUrl = "{$_SERVER["REQUEST_SCHEME"]}://{$_SERVER["HTTP_HOST"]}/api/";
         <li class="api-list__header">Customers</li>
         <li class="api-list__item"><p>Sign up</p></li>
         <li class="api-list__item"><p>Sign in</p></li>
+        <li class="api-list__item">Edit</li>
         <li class="api-list__item"><p>Password recovery</p></li>
         <li class="api-list__item"><p>Customer Content</p></li>
         <li class="api-list__item"><p>Logout</p></li>

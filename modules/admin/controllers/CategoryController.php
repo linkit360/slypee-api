@@ -311,7 +311,9 @@ class CategoryController extends Controller
                 );
 
                 foreach ($models as $index => $model) {
-                    $models[$index]->save();
+                    if($models[$index]) {
+                        $models[$index]->save();
+                    }
                 }
 
             } else {
