@@ -36,6 +36,11 @@ class ContentController extends ActiveController
         ];
     }
 
+    public function  actionCategory($id)
+    {
+        return ["id"=>$id];
+    }
+
     public function actionIndex()
     {
         $headers = Yii::$app->request->headers;

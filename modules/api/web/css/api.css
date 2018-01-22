@@ -1,0 +1,22 @@
+.api-list {
+    margin: 50px 0 0;
+}
+
+.api-list__header {
+    font-size: 18px;
+    list-style-type: none;
+    margin: 20px 0 10px;
+}
+
+.api-list__item {
+    font-size: 14px;
+    list-style-type: none;
+    margin: 10px 0;
+    padding-left: 25px;
+}
+
+.api-list__item p {
+    padding: 5px 0;
+    margin: 0;
+    font-size: 13px;
+}

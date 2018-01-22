@@ -88,9 +88,9 @@ $config = [
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'api/category',
                     'pluralize' => false,
-                    'only' => ['index', 'view', 'menu', 'info'],
+                    'only' => ['index', 'menu', 'info'],
                     'extraPatterns' => [
-                        'GET menu' => 'category/menu',
+                        'GET menu' => 'menu',
                         'GET info/<slug:[\w-]+>' => 'info'
                     ]
                 ],
@@ -98,10 +98,11 @@ $config = [
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'api/content',
                     'pluralize' => false,
-                    'only' => ['index', 'view', 'subscribe', 'unsubscribe'],
+                    'only' => ['index', 'view', 'category', 'subscribe', 'unsubscribe'],
                     'extraPatterns' => [
                         'GET subscribe/<id:\d+>' => 'subscribe',
-                        'GET unsubscribe/<id:\d+>' => 'unsubscribe'
+                        'GET unsubscribe/<id:\d+>' => 'unsubscribe',
+                        'GET category/<id:\d+>' => 'category'
                     ]
                 ],
             ],

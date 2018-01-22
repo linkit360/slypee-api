@@ -12,7 +12,7 @@ class m180119_093156_add_slug_column_to_category_table extends Migration
      */
     public function up()
     {
-        $this->addColumn('category', 'slug', $this->string(50)->notNull());
+        $this->addColumn('category', 'slug', $this->string(50));
 
         $this->createIndex(
             'idx-category-slug',
