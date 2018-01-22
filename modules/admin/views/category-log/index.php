@@ -4,7 +4,7 @@ use yii\helpers\Url;
 use yii\bootstrap\ActiveForm;
 use yii\widgets\LinkPager;
 
-$this->title = $category->name.' category log';
+$this->title = $category ? $category->name.' category log':'Category log';
 $this->params['breadcrumbs'][] = ['label' => 'Categories', 'url' => ['category/'], 'class' => 'breadcrumb'];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
@@ -17,7 +17,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php $form = ActiveForm::begin([
         'layout' => 'horizontal',
         'method' => 'GET',
-        'action' => Url::to(['category-log/', 'category_id' => $category->id]),
+        'action' => Url::to(['category-log/']),
         'options' => [
             'id' => 'search-form',
         ],
@@ -45,7 +45,7 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
 
         <div class="row flex flex_end">
-            <?= Html::resetButton('Reset filter', ['class' => 'btn orange', 'style' => 'margin-right: 20px', 'onclick'=>"window.location = '".Url::to(['category-log/', 'category_id' => $category->id])."'"]) ?>
+            <?= Html::resetButton('Reset filter', ['class' => 'btn orange', 'style' => 'margin-right: 20px', 'onclick'=>"window.location = '".Url::to(['category-log/'])."'"]) ?>
             <?= Html::submitButton("Apply filter", ['class' => 'btn btn-primary green waves-effect waves-light']) ?>
         </div>
 

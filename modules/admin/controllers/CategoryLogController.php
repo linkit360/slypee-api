@@ -19,7 +19,7 @@ class CategoryLogController extends Controller
      * Renders the index view for the module
      * @return string
      */
-    public function actionIndex($category_id)
+    public function actionIndex()
     {
 //        if (!Yii::$app->user->can('viewCategoryLog')) {
 //            return $this->goHome();
@@ -33,13 +33,7 @@ class CategoryLogController extends Controller
             $page_size = $per_page_settings->value;
         }
 
-        $category = Category::find()->where(['id' => $category_id])->one();
-
-        if(!$category) {
-            throw new NotFoundHttpException('Category not found' ,404);
-        }
-
-        $query = CategoryLog::find()->andWhere(['category_id' => $category_id]);
+        $query = CategoryLog::find();
 
         $search = new CategoryLogFilterForm();
         $search->load(Yii::$app->request->get());
@@ -67,7 +61,7 @@ class CategoryLogController extends Controller
             "logs" => $logs,
             "search" => $search,
             "pages" => $pages,
-            "category" => $category
+            "category" => null
         ]);
 
     }
