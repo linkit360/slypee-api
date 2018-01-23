@@ -42,6 +42,20 @@ $this->params['breadcrumbs'][] = $this->title;
                 ]) ?>
             </div>
 
+            <div class="cell">
+                <?= $form->field($search, 'category_id')->dropDownList($categories, [
+                    'class' => 'materialize-select',
+                    'prompt'=>'---'
+                ]) ?>
+            </div>
+
+            <div class="cell">
+                <?= $form->field($search, 'user_id')->dropDownList($users, [
+                    'class' => 'materialize-select',
+                    'prompt'=>'---'
+                ]) ?>
+            </div>
+
         </div>
 
         <div class="row flex flex_end">
@@ -56,10 +70,10 @@ $this->params['breadcrumbs'][] = $this->title;
     <table class="striped responsive-table">
         <thead>
         <tr>
-            <th style="width: 15%">Datetime</th>
-            <th style="width: 25%">User</th>
-            <th>Category</th>
-            <th>Action</th>
+            <th style="width: 15%"><?= $sort->link('datetime', ["class" => "sort-link"]) ?></th>
+            <th style="width: 25%"><?= $sort->link('user.username', ["class" => "sort-link", "label" => "User"]) ?></th>
+            <th><?= $sort->link('category.name', ["class" => "sort-link", "label" => "Category"]) ?></th>
+            <th><?= $sort->link('crud_types.name', ["class" => "sort-link", "label" => "Type"]) ?></th>
         </tr>
         </thead>
         <tbody>
