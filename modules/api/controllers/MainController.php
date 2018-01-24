@@ -40,10 +40,15 @@ class MainController extends ActiveController
 
         foreach ($categories as $category) {
             $items = Content::find()->andWhere(['category_id' => $category->id])->andWhere(['active' => 1])->orderBy("rating DESC")->offset(0)->limit(20)->all();
+            $prepared_items = [];
+
+            foreach ($items as $item){
+                $prepared_items[] = $item->prepareForListApi();
+            }
 
             $data[] = [
                 "category" => $category,
-                "items" => $items,
+                "items" => $prepared_items,
             ];
         }
 

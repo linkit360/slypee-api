@@ -13,6 +13,38 @@ $(function() {
 
     $('input.date_picker').Zebra_DatePicker(date_picker_options);
 
+    // drag
+    $(".sortable").tableDnD({
+        onDragClass: "ordering-progress",
+        dragHandle: "ordering",
+        onDrop: function(table, row) {
+
+            var data = {
+                "prev": $(row).prev().length ? $(row).prev().data("id"):0,
+                "current": $(row).data("id"),
+                "next": $(row).next().length ? $(row).next().data("id"):0
+            };
+
+            // Передаем данные на сервер
+            $.post({
+                url: $(table).data("href"),
+                type: "POST",
+                data: data,
+                dataType: "json",
+                success: function (data) {
+                    for(d in data ) {
+                        $(table).children("[data-id=" + data[d].id + "]").children(".priority").text(data[d].priority);
+                    }
+                    return false;
+                },
+                error: function () {
+                    console.log("Something went wrong");
+                    return false;
+                }
+            });
+        }
+    });
+
     $('#login-form').on('beforeSubmit', function(e) {
         var form = $(this);
 

@@ -49,18 +49,20 @@ AdminAsset::register($this);
         <div class="col s3 aside">
             <div class="collection  with-header">
                 <a href="<?=Url::to(['category/']);?>" class="collection-item">Categories</a>
+                <a href="<?=Url::to(['category/top']);?>" class="collection-item">Top categories</a>
                 <a href="<?=Url::to(['content/']);?>" class="collection-item">Content</a>
+                <a href="<?=Url::to(['content/top']);?>" class="collection-item">Top charts</a>
                 <a href="<?=Url::to(['users/']);?>" class="collection-item">Users</a>
                 <a href="<?=Url::to(['customers/']);?>" class="collection-item">Customers</a>
                 <a href="<?=Url::to(['slider/']);?>" class="collection-item">Slider</a>
                 <div class="collection-header"><h4>Settings</h4></div>
                 <a href="<?=Url::to(['per-page-settings/']);?>" class="collection-item">Pagination settings</a>
                 <a href="<?=Url::to(['roles/']);?>" class="collection-item">Roles</a>
-                <a href="<?=Url::to(['category-log/']);?>" class="collection-item">Category log</a>
-                <a href="<?=Url::to(['content-log/']);?>" class="collection-item">Content log</a>
-                <a href="<?=Url::to(['slider-log/']);?>" class="collection-item">Slider log</a>
-                <a href="<?=Url::to(['customers-log/']);?>" class="collection-item">Customers log</a>
-                <a href="<?=Url::to(['users-log/']);?>" class="collection-item">Users log</a>
+                <a href="<?=Url::to(['log/', 'type' => 'category']);?>" class="collection-item">Category log</a>
+                <a href="<?=Url::to(['log/', 'type' => 'content']);?>" class="collection-item">Content log</a>
+                <a href="<?=Url::to(['log/', 'type' => 'slider']);?>" class="collection-item">Slider log</a>
+                <a href="<?=Url::to(['log/', 'type' => 'customer']);?>" class="collection-item">Customers log</a>
+                <a href="<?=Url::to(['log/', 'type' => 'user']);?>" class="collection-item">Users log</a>
                 <a href="<?=Url::to(['pagination/']);?>" class="collection-item">Customers operations</a>
                 <div class="collection-header"><h4>Service</h4></div>
                 <a href="<?=Url::to(['currency_types/']);?>" class="collection-item">Currency types</a>

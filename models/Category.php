@@ -5,8 +5,8 @@ namespace app\models;
 use Yii;
 use yii\behaviors\SluggableBehavior;
 
-use app\models\CategoryLog;
-use app\models\CrudTypes;
+//use app\models\CategoryLog;
+use app\models\Log;
 
 /**
  * This is the model class for table "category".
@@ -24,6 +24,8 @@ use app\models\CrudTypes;
  */
 class Category extends \yii\db\ActiveRecord
 {
+    private $logType = 'category';
+
     public function behaviors()
     {
         return [
@@ -56,13 +58,6 @@ class Category extends \yii\db\ActiveRecord
             [['main_menu', 'main_page', 'priority', 'active'], 'filter', 'filter' => 'intval']
         ];
     }
-
-//    public function fields()
-//    {
-//        return [
-//            'ResourceID' => 'id'
-//        ];
-//    }
 
     /**
      * @inheritdoc
@@ -105,7 +100,7 @@ class Category extends \yii\db\ActiveRecord
 
         if($insert) {
             // add new log
-            $this->addLog("Add");
+            (new Log)->addLog($this->id, $this->logType, "Add");
         } else {
             // check actions
             if(!count($changedAttributes)) {
@@ -119,9 +114,9 @@ class Category extends \yii\db\ActiveRecord
                 if(isset($changedAttributes["active"])) {
                     // activate or deactivate
                     if($this->active) {
-                        $this->addLog("Activate");
+                        (new Log)->addLog($this->id, $this->logType, "Activate");
                     } else {
-                        $this->addLog("Deactivate");
+                        (new Log)->addLog($this->id, $this->logType, "Deactivate");
                     }
 
                     if(count($changedAttributes) > 1) {
@@ -133,31 +128,12 @@ class Category extends \yii\db\ActiveRecord
                 }
 
                 if($update) {
-                    $this->addLog("Update");
+                    (new Log)->addLog($this->id, $this->logType, "Update");
                 }
-
 
                 $this->updated_at = time();
                 $this->save();
-
             }
         }
-    }
-
-    private function addLog($type) {
-
-        $crud_type = CrudTypes::find()->where(['name' => $type])->one();
-
-        if(!$crud_type) {
-            return;
-        }
-
-        $log = new CategoryLog;
-        $log->datetime = time();
-        $log->crud_type_id = $crud_type->id;
-        $log->category_id = $this->id;
-        $log->user_id = Yii::$app->user->id;
-
-        $log->save();
     }
 }

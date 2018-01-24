@@ -6,13 +6,13 @@ use Yii;
 use yii\base\Model;
 
 /**
- * Category Log Filtering
+ * Log Filtering
  */
-class CategoryLogFilterForm extends Model
+class LogFilterForm extends Model
 {
     public $date_begin;
     public $date_end;
-    public $category_id;
+    public $object_id;
     public $user_id;
     /**
      * @return array the validation rules.
@@ -22,7 +22,7 @@ class CategoryLogFilterForm extends Model
         return [
             [['date_begin'], 'date', 'format' => 'php:m-d-Y'],
             [['date_end'], 'date', 'format' => 'php:m-d-Y'],
-            [['category_id', 'user_id'], 'filter', 'filter' => 'intval'],
+            [['object_id', 'user_id'], 'filter', 'filter' => 'intval'],
         ];
     }
 
@@ -31,7 +31,7 @@ class CategoryLogFilterForm extends Model
         return [
             'date_begin' => 'Date from',
             'date_end' => 'Date to',
-            'category_id' => 'Category',
+            'object_id' => 'Object',
             'user_id' => 'User'
         ];
     }

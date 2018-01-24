@@ -4,16 +4,17 @@ namespace app\modules\admin\controllers;
 
 use Yii;
 use Datetime;
-use yii\web\Controller;
-use yii\helpers\ArrayHelper;
-use yii\web\NotFoundHttpException;
 use yii\data\Pagination;
 use yii\data\Sort;
+use yii\helpers\ArrayHelper;
+use yii\web\Controller;
+use yii\web\NotFoundHttpException;
+
 
 use app\models\Category;
 use app\models\SlypeeUser;
-use app\models\CategoryLog;
-use app\modules\admin\models\CategoryLogFilterForm;
+use app\models\Log;
+use app\modules\admin\models\LogFilterForm;
 use app\modules\admin\models\PerPageSettings;
 
 class CategoryLogController extends Controller
@@ -37,13 +38,13 @@ class CategoryLogController extends Controller
             $page_size = $per_page_settings->value;
         }
 
-        $search = new CategoryLogFilterForm();
+        $search = new LogFilterForm();
         // search selects
-        $categories = ArrayHelper::map(CategoryLog::find()->select('category_id, category.name')->joinWith("category")->orderBy("category_id")->distinct()->all(), "category_id", "category.name");
-        $users = ArrayHelper::map(CategoryLog::find()->select('user_id, user.username')->joinWith("user")->orderBy("user_id")->distinct()->all(), "user_id", "user.username");
+        $categories = ArrayHelper::map(Log::find()->select('category.id, category.name')->joinWith("category")->orderBy("category.id")->distinct()->all(), "category.id", "category.name");
+        $users = ArrayHelper::map(Log::find()->select('user_id, user.username')->joinWith("user")->orderBy("user_id")->distinct()->all(), "user_id", "user.username");
         $search->load(Yii::$app->request->get());
 
-        $query = CategoryLog::find()->joinWith("category")->joinWith("user")->joinWith("crudType");
+        $query = Log::find()->where(["object_type" => "category"])->joinWith("category")->joinWith("user")->joinWith("crudType");
 
         $sort = new Sort([
             'attributes' => [

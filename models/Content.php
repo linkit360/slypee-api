@@ -5,8 +5,6 @@ namespace app\models;
 use Yii;
 use yii\web\UploadedFile;
 
-use app\models\ContentLog;
-use app\models\CrudTypes;
 
 /**
  * This is the model class for table "content".
@@ -29,6 +27,7 @@ class Content extends \yii\db\ActiveRecord
     private $oldCategory;
 
     public $uploadPath = "uploads/content/";
+    private $logType = 'content';
 
     /**
      * @inheritdoc
@@ -126,7 +125,7 @@ class Content extends \yii\db\ActiveRecord
         if($insert) {
 
             // add new log
-            $this->addLog("Add");
+            (new Log)->addLog($this->id, $this->logType, "Add");
 
             if($this->active) {
                 $this->category->updateCounters(["content" => 1]);
@@ -150,9 +149,9 @@ class Content extends \yii\db\ActiveRecord
                 if(isset($changedAttributes["active"])) {
                     // activate or deactivate
                     if($this->active) {
-                        $this->addLog("Activate");
+                        (new Log)->addLog($this->id, $this->logType, "Activate");
                     } else {
-                        $this->addLog("Deactivate");
+                        (new Log)->addLog($this->id, $this->logType, "Deactivate");
                     }
 
                     if(count($changedAttributes) > 1) {
@@ -164,9 +163,8 @@ class Content extends \yii\db\ActiveRecord
                 }
 
                 if($update) {
-                    $this->addLog("Update");
+                    (new Log)->addLog($this->id, $this->logType, "Update");
                 }
-
 
                 $this->updated_at = time();
                 $this->save();
@@ -204,21 +202,35 @@ class Content extends \yii\db\ActiveRecord
         return true;
     }
 
-    private function addLog($type)
-    {
+    public function prepareForListApi() {
+        return [
+            "id" => $this->id,
+            "name" => $this->name,
+            "description" => $this->description,
+            "price" => $this->price,
+            "rating" => $this->rating,
+            "type" => $this->contentType->name,
+            "currency" => $this->currencyType->name,
+            "logo" => Yii::$app->urlManager->createAbsoluteUrl(['/']) . $this->uploadPath . $this->logo,
+            "categoryId" => $this->category_id,
+            "producer" => $this->producer
+        ];
+    }
 
-        $crud_type = CrudTypes::find()->where(['name' => $type])->one();
-
-        if(!$crud_type) {
-            return;
-        }
-
-        $log = new ContentLog();
-        $log->datetime = time();
-        $log->crud_type_id = $crud_type->id;
-        $log->content_id = $this->id;
-        $log->user_id = Yii::$app->user->id;
-
-        $log->save();
+    public function prepareForApi() {
+        return [
+            "id" => $this->id,
+            "name" => $this->name,
+            "description" => $this->description,
+            "price" => $this->price,
+            "rating" => $this->rating,
+            "type" => $this->contentType->name,
+            "currency" => $this->currencyType->name,
+            "logo" => Yii::$app->urlManager->createAbsoluteUrl(['/']).$this->uploadPath.$this->logo,
+            "categoryId" => $this->category_id,
+            "screenshots" => [],
+            "video" => $this->video,
+            "producer" => $this->producer
+        ];
     }
 }

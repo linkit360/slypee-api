@@ -21,6 +21,7 @@ use yii\web\UploadedFile;
 class Slider extends \yii\db\ActiveRecord
 {
     public $uploadPath = "uploads/slider/";
+    public $logType = "slider";
     /**
      * @inheritdoc
      */
@@ -81,5 +82,51 @@ class Slider extends \yii\db\ActiveRecord
                 return Yii::$app->urlManager->createAbsoluteUrl(['/']).$model->uploadPath.$model->image;
             },
         ];
+    }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        // update action is worked if we change some fields besides active field
+        $update = false;
+
+        if($insert) {
+            // add new log
+            (new Log)->addLog($this->id, $this->logType, "Add");
+        } else {
+            // check actions
+            if(!count($changedAttributes)) {
+                return; // nothing to update
+            } else {
+
+                if(isset($changedAttributes["updated_at"])) {
+                    return; // after update updated time
+                }
+
+                if(isset($changedAttributes["active"])) {
+                    // activate or deactivate
+                    if($this->active) {
+                        (new Log)->addLog($this->id, $this->logType, "Activate");
+                    } else {
+                        (new Log)->addLog($this->id, $this->logType, "Deactivate");
+                    }
+
+                    if(count($changedAttributes) > 1) {
+                        $update = true;
+                    }
+
+                } else {
+                    $update = true;
+                }
+
+                if($update) {
+                    (new Log)->addLog($this->id, $this->logType, "Update");
+                }
+
+                $this->updated_at = time();
+                $this->save();
+            }
+        }
     }
 }

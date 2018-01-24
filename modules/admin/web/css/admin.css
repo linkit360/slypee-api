@@ -8,6 +8,10 @@ h1 {
     margin: 0;
 }
 
+h1.first-letter:first-letter {
+    text-transform: uppercase;
+}
+
 .main, .aside {
     margin-top: 20px;
 }

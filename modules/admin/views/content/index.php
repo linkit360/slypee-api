@@ -167,7 +167,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                 </a>
                             </li>
                             <li>
-                                <a href="<?=Url::to(['content_log/', 'category_id' => $item->id]);?>" class="nowrap"><i class="material-icons left">history</i>History</a>
+                                <a href="<?=Url::to(['log/', 'type' => 'content', 'object_id' => $item->id]);?>" class="nowrap"><i class="material-icons left">history</i>History</a>
                             </li>
                             <li>
                                 <a href="<?=Url::to(['content/customers', 'category_id' => $item->id]);?>" class="nowrap"><i class="material-icons left">list</i>Customers List</a>

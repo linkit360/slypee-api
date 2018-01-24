@@ -70,6 +70,8 @@ class SlypeeUser extends ActiveRecord implements IdentityInterface
             [['email', 'username'], 'unique'],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
+            [['active'], 'integer'],
+            [['active'], 'filter', 'filter' => 'intval'],
         ];
     }
 

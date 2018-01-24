@@ -10,18 +10,16 @@ use yii\data\Sort;
 use yii\data\Pagination;
 use yii\helpers\Url;
 
-use app\models\SlypeeUser;
+use app\models\Customers;
 use app\modules\admin\models\PerPageSettings;
 
-class UsersController extends \yii\web\Controller
+class CustomersController extends \yii\web\Controller
 {
     public $auth;
     public $roles_array = [];
 
     public function init()
     {
-        $this->auth = Yii::$app->authManager;
-
         parent::init();
     }
 
@@ -31,7 +29,7 @@ class UsersController extends \yii\web\Controller
 //            return $this->goHome();
 //        }
 
-        $per_page_settings = PerPageSettings::find()->where(['name' => 'users'])->one();
+        $per_page_settings = PerPageSettings::find()->where(['name' => 'customers'])->one();
 
         if(!$per_page_settings) {
             $page_size = 10;
@@ -51,19 +49,13 @@ class UsersController extends \yii\web\Controller
             'defaultOrder' => ['created_at' => SORT_ASC],
         ]);
 
-        $query = SlypeeUser::find();
+        $query = Customers::find();
 
         $countQuery = clone $query;
 
         $pages = new Pagination(['totalCount' => $countQuery->count(), 'pageSizeParam' => false, 'pageSize' => $page_size]);
 
         $users = $query->orderBy($sort->orders)->offset($pages->offset)->limit($pages->limit)->all();
-
-        if($users) {
-            foreach ($users as $user) {
-                $user->roleName = $user->id;
-            }
-        }
 
         return $this->render('index', [
             "users" => $users,
@@ -74,17 +66,16 @@ class UsersController extends \yii\web\Controller
 
     public function actionCreate()
     {
-        $model = new SlypeeUser;
-        $model->scenario = 'userCreate';
-
-        $this->getRolesArray();
+        $model = new Customers;
+        $model->scenario = 'customerCreate';
 
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+            $model->content = 0;
             $model->created_at = time();
             $model->updated_at = $model->created_at;
 
             $data = [
-                "message" => "User was successfully added"
+                "message" => "Customer was successfully added"
             ];
 
             if ($model->validate()) {
@@ -94,13 +85,9 @@ class UsersController extends \yii\web\Controller
                 $model->generateAuthKey();
                 $model->save();
 
-                // set role
-                $role = $this->auth->getRole($model->role);
-                $this->auth->assign($role, $model->id);
-
                 $data["errors"] = "";
                 $data["success"] = 1;
-                $data["redirectUrl"] = Url::to(['users/view', 'id' => $model->id]);
+                $data["redirectUrl"] = Url::to(['customers/view', 'id' => $model->id]);
                 return json_encode($data,JSON_PRETTY_PRINT);
 
             } else {
@@ -115,55 +102,33 @@ class UsersController extends \yii\web\Controller
 
         } else {
             return $this->render('create', [
-                'title' => "New user",
-                'btn' => "Add user",
-                'model' => $model,
-                'roles' => $this->roles_array,
+                'title' => "New customer",
+                'btn' => "Add customer",
+                'model' => $model
             ]);
         }
     }
 
     public function actionUpdate($id)
     {
-        $model = SlypeeUser::find()->where(['id' => $id])->one();
-        $model->scenario = "userUpdate";
+        $model = Customers::find()->where(['id' => $id])->one();
+        $model->scenario = "customerUpdate";
 
         if(!$model) {
-            throw new NotFoundHttpException('Category not found' ,404);
+            throw new NotFoundHttpException('Customer not found' ,404);
         }
-
-        $roles = $this->auth->getAssignments($model->id);
-
-        // one role
-        if($roles) {
-            reset($roles);
-            $old_role = key($roles);
-
-            $model->role = $old_role;
-        }
-
-        $this->getRolesArray();
 
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
 
             $data = [
-                "message" => "User was successfully updated"
+                "message" => "Customer was successfully updated"
             ];
 
             if ($model->validate()) {
 
-                // все данные корректны
-
                 // change password if necessary
                 if($model->password) {
                     $model->setPassword($model->password);
-                }
-
-                // change role if necessary
-                if($model->role != $old_role) {
-                    $this->auth->revokeAll($model->id);
-                    $role = $this->auth->getRole($model->role);
-                    $this->auth->assign($role, $model->id);
                 }
 
                 $model->save();
@@ -184,10 +149,9 @@ class UsersController extends \yii\web\Controller
         } else {
 
             return $this->render('create', [
-                'title' => "Edit user",
+                'title' => "Edit customer",
                 'btn' => "Save changes",
-                'model' => $model,
-                'roles' => $this->roles_array,
+                'model' => $model
             ]);
 
         }
@@ -197,17 +161,4 @@ class UsersController extends \yii\web\Controller
     {
 
     }
-
-    private function getRolesArray()
-    {
-        $roles = $this->auth->getRoles();
-        $roles_array = [];
-
-        foreach ($roles as $role) {
-            $roles_array[$role->name] = $role->name;
-        }
-
-        $this->roles_array = $roles_array;
-    }
-
 }

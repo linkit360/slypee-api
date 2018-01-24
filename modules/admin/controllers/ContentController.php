@@ -21,6 +21,94 @@ use app\modules\admin\models\PerPageSettings;
 
 class ContentController extends \yii\web\Controller
 {
+    public function actionTop()
+    {
+        if (!Yii::$app->user->can('viewContent')) {
+            return $this->goHome();
+        }
+
+        if (Yii::$app->request->isAjax && Yii::$app->request->isPost) {
+            $data = Yii::$app->request->post();
+
+            $prev = $data["prev"];
+            $current = $data["current"];
+            $next = $data["next"];
+
+            $current_model = Content::find()->where(['id' => $current])->one();
+
+            if(!$current_model) {
+                throw new NotFoundHttpException('Error' ,404);
+            }
+
+            $next_model = Content::find()->where(['id' => $next])->one();
+            $prev_model = Content::find()->where(['id' => $prev])->one();
+
+            if(!$prev_model && !$next_model) {
+                throw new NotFoundHttpException('Error' ,404);
+            }
+
+            $current_priority = $current_model->priority;
+            $prev_priority = $prev_model ? $prev_model->priority : 0;
+            $next_priority = $next_model ? $next_model->priority : $prev_priority + 1; // sick
+
+            if($current_priority > $prev_priority) {
+                $items = Content::find()->andWhere(["<", "priority", $current_priority])->andWhere([">=", "priority", $next_priority])->all();
+                if(!$items) {
+                    return json_encode([],JSON_PRETTY_PRINT);
+                }
+                foreach ($items as $item) {
+                    $item->updateCounters(["priority" => 1]);
+                }
+                $current_model->priority = $next_priority;
+            } else {
+                $items = Content::find()->andWhere(["<=", "priority", $prev_priority])->andWhere([">", "priority", $current_priority])->all();
+                if(!$items) {
+                    return json_encode([],JSON_PRETTY_PRINT);
+                }
+                foreach ($items as $item) {
+                    $item->updateCounters(["priority" => -1]);
+                }
+                $current_model->priority = $prev_priority;
+            }
+
+            $current_model->save();
+
+            $data = [0 => [
+                "id" => $current_model->id,
+                "priority" => $current_model->priority
+            ]];
+            foreach ($items as $item) {
+                $data[] = [
+                    "id" => $item->id,
+                    "priority" => $item->priority
+                ];
+            }
+
+            return json_encode($data,JSON_PRETTY_PRINT);
+        }
+
+        $per_page_settings = PerPageSettings::find()->where(['name' => 'content'])->one();
+
+        if(!$per_page_settings) {
+            $page_size = 10;
+        } else {
+            $page_size = $per_page_settings->value;
+        }
+
+        $query = Content::find();
+
+        $countQuery = clone $query;
+
+        $pages = new Pagination(['totalCount' => $countQuery->count(), 'pageSizeParam' => false, 'pageSize' => $page_size]);
+
+        $content = $query->orderBy('priority')->offset($pages->offset)->limit($pages->limit)->all();
+
+        return $this->render('top', [
+            "content" => $content,
+            "pages" => $pages,
+        ]);
+    }
+
     public function actionIndex()
     {
         if (!Yii::$app->user->can('viewContent')) {
@@ -134,6 +222,14 @@ class ContentController extends \yii\web\Controller
             $data = [
                 "message" => "Content was successfully added"
             ];
+
+            $existed_priority = Content::find()->orderBy("priority DESC")->one();
+
+            if($existed_priority) {
+                $model->priority = $existed_priority->priority + 1;
+            } else {
+                $model->priority = 0;
+            }
 
             if ($model->validate()) {
 

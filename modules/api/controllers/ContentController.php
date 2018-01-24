@@ -36,36 +36,43 @@ class ContentController extends ActiveController
         ];
     }
 
+    public function  actionTop()
+    {
+        $content = Content::find()->where(['active' => 1])->orderBy("priority")->all();
+
+        $preparedContent = [];
+
+        foreach($content as $item) {
+            $preparedContent[] = $item->prepareForListApi();
+        }
+
+        return $preparedContent;
+    }
+
     public function  actionCategory($id)
     {
-        return ["id"=>$id];
+//        $headers = Yii::$app->request->headers;
+//
+//        return $headers;
+
+        $content = Content::find()->where(['active' => 1, 'category_id' => $id])->all();
+
+        $preparedContent = [];
+
+        foreach($content as $item) {
+            $preparedContent[] = $item->prepareForListApi();
+        }
+
+        return $preparedContent;
     }
 
     public function actionIndex()
     {
-        $headers = Yii::$app->request->headers;
-
-        return $headers;
-
         $preparedContent = [];
         $content = Content::find()->where(['active' => 1])->all();
 
-        $url = Yii::$app->urlManager->createAbsoluteUrl(['/']);
         foreach($content as $item) {
-
-            $preparedContent[] = [
-                "id" => $item->id,
-                "name" => $item->name,
-                "description" => $item->description,
-                "price" => $item->price,
-                "rating" => $item->rating,
-                "type" => $item->contentType->name,
-                "currency" => $item->currencyType->name,
-                "logo" => $url . $item->uploadPath . $item->logo,
-                "categoryId" => $item->category_id,
-                "producer" => $item->producer
-            ];
-
+            $preparedContent[] = $item->prepareForListApi();
         }
 
         return $preparedContent;
@@ -79,22 +86,7 @@ class ContentController extends ActiveController
             throw new NotFoundHttpException('Content not found', 404);
         }
 
-        $preparedModel = [
-            "id" => $model->id,
-            "name" => $model->name,
-            "description" => $model->description,
-            "price" => $model->price,
-            "rating" => $model->rating,
-            "type" => $model->contentType->name,
-            "currency" => $model->currencyType->name,
-            "logo" => Yii::$app->urlManager->createAbsoluteUrl(['/']).$model->uploadPath.$model->logo,
-            "categoryId" => $model->category_id,
-            "screenshots" => [],
-            "video" => $model->video,
-            "producer" => $model->producer
-        ];
-
-        return $preparedModel;
+        return $model->prepareForApi();
     }
 
     public function actionSubscribe($id)

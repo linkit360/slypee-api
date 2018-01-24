@@ -277,3 +277,12 @@ table.striped>tbody>tr.selected {
     background: #e0e0e0 ! important;
     border-color: #fff ! important;
 }
+
+td.ordering {
+    cursor: pointer;
+    background: url("../images/ordering_d.png") no-repeat 50% 50%;
+}
+
+tr.ordering-progress {
+    outline: 2px dotted red ! important;
+}

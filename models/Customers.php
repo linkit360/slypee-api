@@ -3,6 +3,10 @@
 namespace app\models;
 
 use Yii;
+use yii\base\NotSupportedException;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
+use yii\web\IdentityInterface;
 
 /**
  * This is the model class for table "customers".
@@ -22,6 +26,11 @@ use Yii;
  */
 class Customers extends \yii\db\ActiveRecord
 {
+    const MIN_PASSWORD_LEN = 5;
+
+    public $password;
+    public $password_confirm;
+
     /**
      * @inheritdoc
      */
@@ -36,12 +45,19 @@ class Customers extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['username', 'auth_key', 'password_hash', 'email', 'created_at', 'updated_at', 'content'], 'required'],
+            [['username', 'email', 'created_at', 'updated_at', 'content'], 'required'],
+            [['password', 'password_confirm'], 'required', 'on' => 'customerCreate'],
+            [['password', 'password_confirm'], 'string', 'min' => self::MIN_PASSWORD_LEN, 'on' => 'customerCreate'],
+            [['password', 'password_confirm'], 'validatePasswordOnEdit', 'on' => 'customerUpdate'],
+            ['email', 'email'],
+            ['password_confirm', 'validateConfirmedPassword'],
             [['status', 'created_at', 'updated_at', 'content'], 'integer'],
             [['username', 'password_hash', 'password_reset_token', 'email'], 'string', 'max' => 255],
             [['auth_key'], 'string', 'max' => 32],
             [['email'], 'unique'],
             [['password_reset_token'], 'unique'],
+            [['active'], 'integer'],
+            [['active'], 'filter', 'filter' => 'intval'],
         ];
     }
 
@@ -70,5 +86,113 @@ class Customers extends \yii\db\ActiveRecord
     public function getCustomersContents()
     {
         return $this->hasMany(CustomersContent::className(), ['customer_id' => 'id']);
+    }
+
+    public function validateConfirmedPassword($attribute, $params)
+    {
+        if ($this->$attribute != $this->password) {
+            $this->addError($attribute, 'Passwords are not equal');
+        }
+    }
+
+    public function validatePasswordOnEdit($attribute, $params)
+    {
+        if($this->$attribute) {
+            $len = mb_strlen($this->$attribute, "utf-8");
+            if($len < self::MIN_PASSWORD_LEN) {
+                $this->addError($attribute, "Password should contain at least 5 characters.");
+            }
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentity($id)
+    {
+        return static::findOne(['id' => $id]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
+    }
+
+    /**
+     * Finds user by username
+     *
+     * @param string $username
+     * @return static|null
+     */
+    public static function findByUsername($username)
+    {
+        return static::findOne(['username' => $username, 'status' => self::STATUS_ACTIVE]);
+    }
+
+    /**
+     * Finds user by username
+     *
+     * @param string $username
+     * @return static|null
+     */
+    public static function findByEmail($email)
+    {
+        return static::findOne(['email' => $email]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getId()
+    {
+        return $this->getPrimaryKey();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getAuthKey()
+    {
+        return $this->auth_key;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function validateAuthKey($authKey)
+    {
+        return $this->getAuthKey() === $authKey;
+    }
+
+    /**
+     * Validates password
+     *
+     * @param string $password password to validate
+     * @return bool if password provided is valid for current user
+     */
+    public function validatePassword($password)
+    {
+        return Yii::$app->security->validatePassword($password, $this->password_hash);
+    }
+
+    /**
+     * Generates password hash from password and sets it to the model
+     *
+     * @param string $password
+     */
+    public function setPassword($password)
+    {
+        $this->password_hash = Yii::$app->security->generatePasswordHash($password);
+    }
+
+    /**
+     * Generates "remember me" authentication key
+     */
+    public function generateAuthKey()
+    {
+        $this->auth_key = Yii::$app->security->generateRandomString();
     }
 }

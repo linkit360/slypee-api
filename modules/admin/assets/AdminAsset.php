@@ -18,7 +18,8 @@ class AdminAsset extends AssetBundle
     public $js = [
         'js/admin.js',
         'js/materialize.min.js',
-        'js/zebra_datepicker.js'
+        'js/zebra_datepicker.js',
+        'js/jquery.tablednd_0_5.js'
     ];
 
     public $publishOptions = [
