@@ -64,6 +64,8 @@ class ContentController extends ActiveController
             }
 
             $query = $query->andWhere(["like", "name", $searchQuery]);
+        } else {
+            throw new NotFoundHttpException('Search query is too short', 404);
         }
 
         // pagination!
