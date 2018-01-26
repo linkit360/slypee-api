@@ -5,6 +5,8 @@ use yii\helpers\Url;
 use yii\widgets\Pjax;
 use yii\bootstrap\ActiveForm;
 
+use dosamigos\tinymce\TinyMce;
+
 $this->title = $title;
 $this->params['breadcrumbs'][] = ['label' => 'Content', 'url' => ['content/'], 'class' => 'breadcrumb'];
 $this->params['breadcrumbs'][] = $this->title;
@@ -51,11 +53,17 @@ $this->params['breadcrumbs'][] = $this->title;
     'style' => 'width: 30%'
 ]) ?>
 
-<?= $form->field($model, 'description')->textarea([
-    "rows" => 10,
-    "cols" => 10,
-    "class" => "materialize-textarea"
-]) ?>
+<?= $form->field($model, 'description')->widget(TinyMce::className(), [
+    'options' => ['rows' => 16],
+    'clientOptions' => [
+        'plugins' => [
+            "advlist autolink lists link charmap print preview anchor",
+            "searchreplace visualblocks code fullscreen",
+            "insertdatetime media table contextmenu paste"
+        ],
+        'toolbar' => "undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image"
+    ]
+]);?>
 
 <?= $form->field($model, 'video')->input('text', [
     'style' => 'width: 30%'

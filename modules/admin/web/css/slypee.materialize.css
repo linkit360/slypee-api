@@ -60,6 +60,22 @@ b, strong {
     box-shadow: 0 1px 0 0 #3f51b5;
 }
 
+.field-description {
+    margin-top: 30px;
+}
+
+.field-description textarea {
+    height: auto ! important;
+}
+
+.field-description .input-field.indigo-field label {
+    transform: scale(0.8) ! important;
+    top: auto ! important;
+    bottom: 100% ! important;
+    height: auto ! important;
+    margin-bottom: 10px;
+}
+
 .checkbox-group {
 
 }
