@@ -116,3 +116,14 @@ if($model->logo) {
 </div>
 
 <?php ActiveForm::end(); ?>
+
+<?php
+    if($model->id) {
+        ?>
+        <h1>Screenshots</h1>
+        <form action="/file-upload" class="dropzone dropzone-slypee"  id="my-awesome-dropzone">
+            <input type="file" name="file" multiple />
+        </form>
+        <?php
+    }
+?>

@@ -98,12 +98,13 @@ $config = [
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'api/content',
                     'pluralize' => false,
-                    'only' => ['index', 'view', 'category', 'subscribe', 'unsubscribe', 'top'],
+                    'only' => ['index', 'view', 'category', 'subscribe', 'unsubscribe', 'top', 'search'],
                     'extraPatterns' => [
                         'GET subscribe/<id:\d+>' => 'subscribe',
                         'GET unsubscribe/<id:\d+>' => 'unsubscribe',
                         'GET category/<id:\d+>' => 'category',
-                        'GET top' => 'top'
+                        'GET top' => 'top',
+                        'GET search' => 'search'
                     ]
                 ],
             ],

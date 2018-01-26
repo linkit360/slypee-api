@@ -49,13 +49,100 @@ class ContentController extends ActiveController
         return $preparedContent;
     }
 
+    public function actionSearch()
+    {
+        $headers = Yii::$app->request->headers;
+
+        $query = Content::find()->where(['active' => 1]);
+
+        // search
+        if(isset($headers["slypee-content-query"])) {
+            $searchQuery = $headers["slypee-content-query"];
+
+            if(!$searchQuery) {
+                throw new NotFoundHttpException('Search query is too short', 404);
+            }
+
+            $query = $query->andWhere(["like", "name", $searchQuery]);
+        }
+
+        // pagination!
+        $offset = 0;
+        $limit = 10;
+        if(isset($headers["slypee-content-pagination-start"])) {
+            $offset = intval($headers["slypee-content-pagination-start"]);
+        }
+        if(isset($headers["slypee-content-pagination-limit"])) {
+            $limit = intval($headers["slypee-content-pagination-limit"]);
+        }
+
+        $content = $query->orderBy("priority")->all();
+
+        $preparedContent = [];
+
+        foreach($content as $item) {
+            $preparedContent[] = $item->prepareForListApi();
+        }
+
+        return $preparedContent;
+    }
+
     public function  actionCategory($id)
     {
-//        $headers = Yii::$app->request->headers;
-//
-//        return $headers;
+        $orderBy = "";
+        $ordering = [
+            "rating" => "rating DESC",
+            "-rating" => "rating ASC",
+            "top" => "rating ASC",
+            "-top" => "rating DESC"
+        ];
 
-        $content = Content::find()->where(['active' => 1, 'category_id' => $id])->all();
+        $headers = Yii::$app->request->headers;
+
+        $query = Content::find();
+
+        // filters
+        $query = $query->andWhere(["=", "active", 1])->andWhere(["=", 'category_id', $id]);
+
+        if(isset($headers["slypee-content-type"])) {
+            $type = $headers["slypee-content-type"];
+            if($type == "free") {
+                $query = $query->andWhere(["=", "price", 0]);
+            }
+
+            if($type == "subscription") {
+                $query = $query->andWhere([">", "price", 0])->andWhere(["!=", 'content_type_id', 1]);
+            }
+
+            if($type == "single") {
+                $query = $query->andWhere([">", "price", 0])->andWhere(["=", 'content_type_id', 1]);
+            }
+        }
+
+        // ordering
+        if(isset($headers["slypee-content-ordering"])) {
+            $order = $headers["slypee-content-ordering"];
+            if(array_key_exists($order, $ordering)) {
+                $orderBy = $ordering[$order];
+            }
+        }
+
+        // initial ordering
+        if(!$orderBy) {
+            $orderBy = $ordering["rating"];
+        }
+
+        // pagination!
+        $offset = 0;
+        $limit = 10;
+        if(isset($headers["slypee-content-pagination-start"])) {
+            $offset = intval($headers["slypee-content-pagination-start"]);
+        }
+        if(isset($headers["slypee-content-pagination-limit"])) {
+            $limit = intval($headers["slypee-content-pagination-limit"]);
+        }
+
+        $content = $query->orderBy($orderBy)->offset($offset)->limit($limit)->all();
 
         $preparedContent = [];
 

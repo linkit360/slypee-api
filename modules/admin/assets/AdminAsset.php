@@ -11,7 +11,8 @@ class AdminAsset extends AssetBundle
         'css/materialize.min.css',
         'css/slypee.materialize.css',
         'css/admin.css',
-        'css/zebra.css'
+        'css/zebra.css',
+        'css/dropzone.css'
     ];
 
     // Path to admin.css file : $sourcePath/css/admin.css
@@ -19,7 +20,8 @@ class AdminAsset extends AssetBundle
         'js/admin.js',
         'js/materialize.min.js',
         'js/zebra_datepicker.js',
-        'js/jquery.tablednd_0_5.js'
+        'js/jquery.tablednd_0_5.js',
+        'js/dropzone.js'
     ];
 
     public $publishOptions = [
