@@ -17,6 +17,75 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= AddNewItem::widget(["link" => Url::to(['users/add'])]) ?>
 </div>
 
+<div class="search-form">
+    <?php $form = ActiveForm::begin([
+        'layout' => 'horizontal',
+        'method' => 'GET',
+        'action' => Url::to(['users/']),
+        'options' => [
+            'id' => 'search-form',
+        ],
+        'fieldConfig' => [
+            'template' => "<div class=\"input-field indigo-field\">{input}{label}</div>",
+            'labelOptions' => ['class' => '', 'data-error' => 'wrong'],
+            'inputOptions' => ['class' => 'validate']
+        ],
+    ]); ?>
+
+    <div class="row">
+
+        <div class="cell">
+            <?= $form->field($search, 'active')->dropDownList([
+                "yes" => "Yes",
+                "no" => "No",
+                "all" => "All",
+            ], [
+                'class' => 'materialize-select'
+            ]) ?>
+        </div>
+
+        <div class="cell cell_flex cell_greedy">
+
+
+        </div>
+
+    </div>
+    <div class="row">
+
+        <div class="cell">
+            <?= $form->field($search, 'created_date_begin')->input('text', [
+                'class' => 'date_picker'
+            ]) ?>
+        </div>
+
+        <div class="cell">
+            <?= $form->field($search, 'created_date_end')->input('text', [
+                'class' => 'date_picker'
+            ]) ?>
+        </div>
+
+        <div class="cell">
+            <?= $form->field($search, 'updated_date_begin')->input('text', [
+                'class' => 'date_picker'
+            ]) ?>
+        </div>
+
+        <div class="cell">
+            <?= $form->field($search, 'updated_date_end')->input('text', [
+                'class' => 'date_picker'
+            ]) ?>
+        </div>
+
+    </div>
+
+    <div class="row flex flex_end">
+        <?= Html::resetButton('Reset filter', ['class' => 'btn orange', 'style' => 'margin-right: 20px', 'onclick'=>"window.location = '".Url::to(['users/'])."'"]) ?>
+        <?= Html::submitButton("Apply filter", ['class' => 'btn btn-primary green waves-effect waves-light']) ?>
+    </div>
+
+    <?php ActiveForm::end(); ?>
+</div>
+
 
 <div class="table-content">
     <table class="striped responsive-table">

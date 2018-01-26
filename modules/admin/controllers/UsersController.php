@@ -11,6 +11,7 @@ use yii\data\Pagination;
 use yii\helpers\Url;
 
 use app\models\SlypeeUser;
+use app\modules\admin\models\UsersFilterForm;
 use app\modules\admin\models\PerPageSettings;
 
 class UsersController extends \yii\web\Controller
@@ -51,7 +52,41 @@ class UsersController extends \yii\web\Controller
             'defaultOrder' => ['created_at' => SORT_ASC],
         ]);
 
+        // search
+        $search = new UsersFilterForm();
+        $search->load(Yii::$app->request->get());
+
         $query = SlypeeUser::find();
+
+        // apply filters
+        if($search->validate()) {
+            // active
+            if($search->active && in_array($search->active, ["yes", "no"])) {
+                $active = $search->active == "yes" ? 1:0;
+                $query = $query->andWhere(["=", "active", $active]);
+            }
+
+            // dates
+            if($search->created_date_begin) {
+                $created_date_begin = DateTime::createFromFormat('m-d-Y', $search->created_date_begin);
+                $query = $query->andWhere([">=", "created_at", $created_date_begin->getTimestamp()]);
+            }
+
+            if($search->created_date_end) {
+                $created_date_end = DateTime::createFromFormat('m-d-Y', $search->created_date_end);
+                $query = $query->andWhere(["<=", "created_at", $created_date_end->getTimestamp()]);
+            }
+
+            if($search->updated_date_begin) {
+                $updated_date_begin = DateTime::createFromFormat('m-d-Y', $search->updated_date_begin);
+                $query = $query->andWhere([">=", "updated_at", $updated_date_begin->getTimestamp()]);
+            }
+
+            if($search->updated_date_end) {
+                $updated_date_end = DateTime::createFromFormat('m-d-Y', $search->updated_date_end);
+                $query = $query->andWhere(["<=", "updated_at", $updated_date_end->getTimestamp()]);
+            }
+        }
 
         $countQuery = clone $query;
 
@@ -67,6 +102,7 @@ class UsersController extends \yii\web\Controller
 
         return $this->render('index', [
             "users" => $users,
+            "search" => $search,
             "pages" => $pages,
             "sort" => $sort
         ]);

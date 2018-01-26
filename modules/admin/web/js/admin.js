@@ -174,8 +174,14 @@ $(function() {
         e.preventDefault();
 
         var el = $(this);
+        var parent = el.parents("tr:eq(0)");
         var span = el.children("span");
         var data = [];
+
+        var content = el.data("content");
+        if(content > 0 && parent.hasClass("active")) {
+            if (confirm(el.data("note")) == false) return false;
+        }
 
         var csrfToken = $('meta[name="csrf-token"]').attr("content");
 

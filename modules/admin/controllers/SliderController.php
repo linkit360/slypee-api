@@ -263,6 +263,61 @@ class SliderController extends \yii\web\Controller
         }
     }
 
+    public function actionAjaxUpdate() {
+        if(Yii::$app->request->post()) {
+
+            $errors = [];
+            $data = [];
+            $models = [];
+            $post = Yii::$app->request->post();
+            $ids = $post["ids"];
+
+            if(!$ids) {
+                throw new NotFoundHttpException('Page not found' ,404);
+            }
+
+            foreach($ids as $key => $id) {
+                $models[$id] = Slider::find()->where(['id' => $id])->one();
+                if($models[$id]) {
+                    $data[$id] = array(
+                        "title" => $post["title"][$key],
+                        "active" => $post["active"][$key],
+                    );
+
+                    $models[$id]->load($data[$id]);
+
+                    // check errors
+                    if (!$models[$id]->validate()) {
+                        $errors[$id] = $models[$id]->errors;
+                    }
+                }
+            }
+
+            if(!$errors) {
+                $response = array(
+                    "success" => 1
+                );
+
+                foreach ($models as $index => $model) {
+                    if($models[$index]) {
+                        $models[$index]->save();
+                    }
+                }
+
+            } else {
+                $response = array(
+                    "errors" => $errors,
+                    "success" => 0
+                );
+            }
+
+            return json_encode($response,JSON_PRETTY_PRINT);
+
+        } else {
+            throw new NotFoundHttpException('Page not found' ,404);
+        }
+    }
+
     public function actionReactivate($id)
     {
         if (Yii::$app->request->isPost) {

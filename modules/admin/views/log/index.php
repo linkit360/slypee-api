@@ -41,13 +41,6 @@ $this->params['breadcrumbs'][] = $this->title;
                 ]) ?>
             </div>
 
-<!--            <div class="cell">-->
-<!--                --><?//= $form->field($search, 'object_id')->dropDownList($objects, [
-//                    'class' => 'materialize-select',
-//                    'prompt'=>'---'
-//                ]) ?>
-<!--            </div>-->
-
             <div class="cell">
                 <?= $form->field($search, 'user_id')->dropDownList($users, [
                     'class' => 'materialize-select',

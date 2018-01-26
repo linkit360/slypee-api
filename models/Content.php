@@ -206,7 +206,6 @@ class Content extends \yii\db\ActiveRecord
         return [
             "id" => $this->id,
             "name" => $this->name,
-            "description" => $this->description,
             "price" => $this->price,
             "rating" => $this->rating,
             "type" => $this->contentType->name,

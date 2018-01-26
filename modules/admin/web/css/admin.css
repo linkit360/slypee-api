@@ -249,6 +249,11 @@ h1.first-letter:first-letter {
     display: flex;
 }
 
+.search-form .cell.cell_half {
+    max-width: 50%;
+    flex-basis: 50%;
+}
+
 .search-form .cell.cell_greedy {
     max-width: 75%;
     flex-basis: 75%;

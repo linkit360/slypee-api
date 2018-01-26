@@ -3,6 +3,8 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use app\modules\admin\widgets\AddNewItem;
+use app\modules\admin\widgets\ActionInput;
+use app\modules\admin\widgets\ActionPanel;
 use app\modules\admin\widgets\ActionCheckbox;
 
 $this->title = 'Slider';
@@ -16,24 +18,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= AddNewItem::widget(["link" => Url::to(['slider/add'])]) ?>
 </div>
 
-<div class="table-actions table-actions_lonely">
-    <div class="table-actions__wrapper">
-        <div class="table-actions__label">
-            Selected items: <strong id="selected_count" class="selected_count">0</strong>
-        </div>
-
-        <div class="table-actions__buttons table-actions__buttons_active">
-            <?= Html::Button("Activate selected", ['class' => 'btn btn-primary green waves-effect waves-light table-actions_button', 'id' => 'activate-action', 'data-href' => '/admin/slider/activate']) ?>
-            <?= Html::Button("Deactivate selected", [
-                'class' => 'btn btn-primary orange waves-effect waves-light table-actions_button',
-                'id' => 'deactivate-action',
-                'data-href' => '/admin/slider/deactivate'
-            ])
-            ?>
-        </div>
-
-    </div>
-</div>
+<?= ActionPanel::widget(["activate" => "/admin/slider/activate", "deactivate" => "/admin/slider/deactivate", "edit" => "/admin/slider/ajax-update"]) ?>
 
 <div class="table-content">
     <table class="striped responsive-table">
@@ -58,7 +43,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <label for="item<?= $item->id?>"></label>
                 </td>
                 <td class="ordering"></td>
-                <td><?= $item->title ?></td>
+                <td><?= ActionInput::widget(["item" => $item, "property" => "title"]) ?></td>
                 <td><?= ActionCheckbox::widget(["item" => $item, "property" => "active"]) ?></td>
                 <td class="priority"><?= $item->priority ?></td>
                 <td style="text-align: right;">

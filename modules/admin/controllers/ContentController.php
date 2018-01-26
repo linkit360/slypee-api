@@ -16,7 +16,7 @@ use app\models\Category;
 use app\models\CurrencyTypes;
 use app\models\ContentTypes;
 use app\models\Content;
-use app\modules\admin\models\CategoryFilterForm;
+use app\modules\admin\models\ContentFilterForm;
 use app\modules\admin\models\PerPageSettings;
 
 class ContentController extends \yii\web\Controller
@@ -127,7 +127,7 @@ class ContentController extends \yii\web\Controller
             'attributes' => [
                 'id',
                 'name',
-                'category',
+                'category.name',
                 'type',
                 'price',
                 'currency',
@@ -140,58 +140,70 @@ class ContentController extends \yii\web\Controller
         ]);
 
         // search
-        $search = new CategoryFilterForm();
+        $search = new ContentFilterForm();
         $search->load(Yii::$app->request->get());
+        // search selects
+        $categories = ArrayHelper::map(Category::find()->orderBy("name")->all(), "id", "name");
+        $currency_types = ArrayHelper::map(CurrencyTypes::find()->orderBy("name")->all(), "id", "name");
+        $content_types = ArrayHelper::map(ContentTypes::find()->orderBy("name")->all(), "id", "name");
 
-        $query = Content::find();
+        $query = Content::find()->joinWith("category");
 
-        // apply filters
-        if(false) {
-            if ($search->validate()) {
-
-                // active
-                if ($search->active && in_array($search->active, ["yes", "no"])) {
-                    $active = $search->active == "yes" ? 1 : 0;
-                    $query = $query->andWhere(["=", "active", $active]);
-                }
-
-                // dates
-                if ($search->created_date_begin) {
-                    $created_date_begin = DateTime::createFromFormat('m-d-Y', $search->created_date_begin);
-                    $query = $query->andWhere([">=", "created_at", $created_date_begin->getTimestamp()]);
-                }
-
-                if ($search->created_date_end) {
-                    $created_date_end = DateTime::createFromFormat('m-d-Y', $search->created_date_end);
-                    $query = $query->andWhere(["<=", "created_at", $created_date_end->getTimestamp()]);
-                }
-
-                if ($search->updated_date_begin) {
-                    $updated_date_begin = DateTime::createFromFormat('m-d-Y', $search->updated_date_begin);
-                    $query = $query->andWhere([">=", "updated_at", $updated_date_begin->getTimestamp()]);
-                }
-
-                if ($search->updated_date_end) {
-                    $updated_date_end = DateTime::createFromFormat('m-d-Y', $search->updated_date_end);
-                    $query = $query->andWhere(["<=", "updated_at", $updated_date_end->getTimestamp()]);
-                }
-
-                // name or id
-                if ($search->type && in_array($search->type, ["id", "name"])) {
-                    if ($search->type == "id" && $search->id) {
-                        $query = $query->andWhere(["=", "id", $search->id]);
-                    }
-
-                    if ($search->type == "name" && $search->name) {
-                        $query = $query->andWhere(["like", "name", $search->name]);
-                    }
-                }
-
-
-            } else {
-                $errors = $search->errors;
-                die(var_dump($errors));
+        if ($search->validate()) {
+            // active
+            if ($search->active && in_array($search->active, ["yes", "no"])) {
+                $active = $search->active == "yes" ? 1 : 0;
+                $query = $query->andWhere(["=", "content.active", $active]);
             }
+
+            // category
+            if ($search->category) {
+                $query = $query->andWhere(["=", "content.category_id", $search->category]);
+            }
+
+            if ($search->content_type) {
+                $query = $query->andWhere(["=", "content.content_type_id", $search->content_type]);
+            }
+
+            if ($search->currency_type) {
+                $query = $query->andWhere(["=", "content.currency_type_id", $search->currency_type]);
+            }
+
+            // dates
+            if ($search->created_date_begin) {
+                $created_date_begin = DateTime::createFromFormat('m-d-Y', $search->created_date_begin);
+                $query = $query->andWhere([">=", "content.created_at", $created_date_begin->getTimestamp()]);
+            }
+
+            if ($search->created_date_end) {
+                $created_date_end = DateTime::createFromFormat('m-d-Y', $search->created_date_end);
+                $query = $query->andWhere(["<=", "content.created_at", $created_date_end->getTimestamp()]);
+            }
+
+            if ($search->updated_date_begin) {
+                $updated_date_begin = DateTime::createFromFormat('m-d-Y', $search->updated_date_begin);
+                $query = $query->andWhere([">=", "content.updated_at", $updated_date_begin->getTimestamp()]);
+            }
+
+            if ($search->updated_date_end) {
+                $updated_date_end = DateTime::createFromFormat('m-d-Y', $search->updated_date_end);
+                $query = $query->andWhere(["<=", "content.updated_at", $updated_date_end->getTimestamp()]);
+            }
+
+            // name or id
+            if ($search->type && in_array($search->type, ["id", "name"])) {
+                if ($search->type == "id" && $search->id) {
+                    $query = $query->andWhere(["=", "content.id", $search->id]);
+                }
+
+                if ($search->type == "name" && $search->name) {
+                    $query = $query->andWhere(["like", "content.name", $search->name]);
+                }
+            }
+
+        } else {
+            $errors = $search->errors;
+            die(var_dump($errors));
         }
 
         $countQuery = clone $query;
@@ -204,7 +216,10 @@ class ContentController extends \yii\web\Controller
             "content" => $content,
             "pages" => $pages,
             "search" => $search,
-            "sort" => $sort
+            "sort" => $sort,
+            "categories" => $categories,
+            "currency_types" => $currency_types,
+            "content_types" => $content_types
         ]);
 
     }

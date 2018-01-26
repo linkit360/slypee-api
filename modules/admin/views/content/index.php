@@ -75,6 +75,30 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
 
     </div>
+
+    <div class="row">
+        <div class="cell cell_half">
+            <?= $form->field($search, 'category')->dropDownList($categories, [
+                'class' => 'materialize-select',
+                'prompt'=>'---'
+            ]) ?>
+        </div>
+
+        <div class="cell">
+            <?= $form->field($search, 'content_type')->dropDownList($content_types, [
+                'class' => 'materialize-select',
+                'prompt'=>'---'
+            ]) ?>
+        </div>
+
+        <div class="cell">
+            <?= $form->field($search, 'currency_type')->dropDownList($currency_types, [
+                'class' => 'materialize-select',
+                'prompt'=>'---'
+            ]) ?>
+        </div>
+    </div>
+
     <div class="row">
 
         <div class="cell">
@@ -104,7 +128,7 @@ $this->params['breadcrumbs'][] = $this->title;
     </div>
 
     <div class="row flex flex_end">
-        <?= Html::resetButton('Reset filter', ['class' => 'btn orange', 'style' => 'margin-right: 20px', 'onclick'=>"window.location = '".Url::to(['category/'])."'"]) ?>
+        <?= Html::resetButton('Reset filter', ['class' => 'btn orange', 'style' => 'margin-right: 20px', 'onclick'=>"window.location = '".Url::to(['content/'])."'"]) ?>
         <?= Html::submitButton("Apply filter", ['class' => 'btn btn-primary green waves-effect waves-light']) ?>
     </div>
 
@@ -123,7 +147,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 </th>
                 <th><?= $sort->link('id', ["class" => "sort-link"]) ?></th>
                 <th><?= $sort->link('name', ["class" => "sort-link"]) ?></th>
-                <th><?= $sort->link('category', ["class" => "sort-link"]) ?></th>
+                <th><?= $sort->link('category.name', ["class" => "sort-link", "label" => "Category"]) ?></th>
                 <th><?= $sort->link('type', ["class" => "sort-link"]) ?></th>
                 <th><?= $sort->link('price', ["class" => "sort-link"]) ?></th>
                 <th><?= $sort->link('currency', ["class" => "sort-link"]) ?></th>

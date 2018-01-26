@@ -157,7 +157,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                 <a href="<?=Url::to(['category/update', 'id' => $category->id]);?>" class="nowrap"><i class="material-icons left">edit</i>Update</a>
                             </li>
                             <li>
-                                <a href="<?=Url::to(['category/reactivate', 'id' => $category->id]);?>" class="nowrap activate">
+                                <a href="<?=Url::to(['category/reactivate', 'id' => $category->id]);?>" class="nowrap activate" data-note="Are you sure you want to deactivate category with Content. This Content will be not available for customers." data-content="<?= $category->content?>">
                                     <i class="material-icons left">check</i>
                                     <span data-active="Deactivate" data-nonactive="Activate"><?= $category->active ? "Deactivate" : "Activate"?></span>
                                 </a>
