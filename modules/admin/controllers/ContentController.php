@@ -519,6 +519,7 @@ class ContentController extends \yii\web\Controller
             $photo_id = $model->photo_id;
             $photo = Photos::find()->where(['id' => $photo_id])->one();
             unlink($photo->image);
+            unlink($photo->thumbnail);
             $model->delete();
             $photo->delete();
 
