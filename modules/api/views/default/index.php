@@ -32,13 +32,13 @@ $baseUrl = "{$_SERVER["REQUEST_SCHEME"]}://{$_SERVER["HTTP_HOST"]}/api/";
                 List of content by category<br/>
                 Headers:<br/>
                 <strong>slypee-content-type</strong> - valid values are - <strong>free, subscription, single</strong><br/>
-                <strong>slypee-content-ordering</strong> - valid values are - <strong>rating, -rating, top, -top</strong><br/>
+                <strong>slypee-content-ordering</strong> - valid values are - <strong>rating, -rating, top, -top, date</strong><br/>
                 <strong>slypee-content-paging-start</strong> - Start position for content items<br/>
                 <strong>slypee-content-paging-limit</strong> - Count of content items
             </p>
         </li>
         <li class="api-list__item">
-            <a href="<?=$baseUrl."content/category/ID"?>"><?=$baseUrl."content/category/ID"?></a>
+            <a href="<?=$baseUrl."content/search"?>"><?=$baseUrl."content/search"?></a>
             <p>
                 Search:<br/>
                 <strong>slypee-content-query</strong><br/>
@@ -47,7 +47,12 @@ $baseUrl = "{$_SERVER["REQUEST_SCHEME"]}://{$_SERVER["HTTP_HOST"]}/api/";
         </li>
         <li class="api-list__item">
             <a href="<?=$baseUrl."content/top"?>"><?=$baseUrl."content/top"?></a>
-            <p>Top charts</p>
+            <p>
+                Top charts<br/>
+                Headers:<br/>
+                <strong>slypee-content-category</strong> - category_id</strong><br/>
+                + pagination headers
+            </p>
         </li>
         <li class="api-list__item">Top charts by Category</li>
         <li class="api-list__item">

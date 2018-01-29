@@ -2,6 +2,7 @@
 
 namespace app\modules\api\controllers;
 
+use app\models\Category;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\rest\ActiveController;
@@ -38,7 +39,24 @@ class ContentController extends ActiveController
 
     public function  actionTop()
     {
-        $content = Content::find()->where(['active' => 1])->orderBy("priority")->all();
+        $headers = Yii::$app->request->headers;
+
+        $query = Content::find()->joinWith("category")->andWhere(['content.active' => 1, 'category.active' => 1]);
+
+        if(isset($headers["slypee-content-category"]) && $headers["slypee-content-category"]) {
+            $query = $query->andWhere(["=", "category_id", $headers["slypee-content-category"]]);
+        }
+
+        $offset = 0;
+        $limit = 10;
+        if(isset($headers["slypee-content-pagination-start"])) {
+            $offset = intval($headers["slypee-content-pagination-start"]);
+        }
+        if(isset($headers["slypee-content-pagination-limit"])) {
+            $limit = intval($headers["slypee-content-pagination-limit"]);
+        }
+
+        $content = $query->orderBy("priority")->offset($offset)->limit($limit)->all();
 
         $preparedContent = [];
 
@@ -53,7 +71,7 @@ class ContentController extends ActiveController
     {
         $headers = Yii::$app->request->headers;
 
-        $query = Content::find()->where(['active' => 1]);
+        $query = Content::find()->joinWith("category")->andWhere(['content.active' => 1, 'category.active' => 1]);
 
         // search
         if(isset($headers["slypee-content-query"])) {
@@ -79,7 +97,7 @@ class ContentController extends ActiveController
             $limit = intval($headers["slypee-content-pagination-limit"]);
         }
 
-        $content = $query->orderBy("priority")->all();
+        $content = $query->orderBy("priority")->offset($offset)->limit($limit)->all();
 
         $preparedContent = [];
 
@@ -97,10 +115,17 @@ class ContentController extends ActiveController
             "rating" => "rating DESC",
             "-rating" => "rating ASC",
             "top" => "priority ASC",
-            "-top" => "priority DESC"
+            "-top" => "priority DESC",
+            "date" => "created_at DESC"
         ];
 
         $headers = Yii::$app->request->headers;
+
+        $category = Category::find()->andWhere(["active" => 1, "id" => $id])->one();
+
+        if(!$category) {
+            throw new NotFoundHttpException('Page not found', 404);
+        }
 
         $query = Content::find();
 
@@ -158,6 +183,9 @@ class ContentController extends ActiveController
 
     public function actionIndex()
     {
+        return [];
+        // not necessary method
+
         $preparedContent = [];
         $content = Content::find()->where(['active' => 1])->all();
 
@@ -170,7 +198,7 @@ class ContentController extends ActiveController
 
     public function actionView($id)
     {
-        $model = Content::find()->where(['id' => $id, 'active' => 1])->one();
+        $model = Content::find()->joinWith("category")->andWhere(['content.id' => $id, 'content.active' => 1, 'category.active' => 1])->one();
 
         if(!$model) {
             throw new NotFoundHttpException('Content not found', 404);
