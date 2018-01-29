@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\web\UploadedFile;
+use yii\imagine\Image;
 
 /**
  * This is the model class for table "photos".
@@ -73,6 +74,8 @@ class Photos extends \yii\db\ActiveRecord
                 $model->save();
                 $file->saveAs($model->image);
                 $ids[] = $model->id;
+
+                Image::thumbnail($this->uploadPath . $name, null, 300)->save($this->uploadPath . "s_". $name, ['jpeg_quality' => 95]);
             }
 
             return $ids;
