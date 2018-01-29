@@ -91,4 +91,15 @@ class Photos extends \yii\db\ActiveRecord
     {
         return $this->hasMany(ContentPhotos::className(), ['photo_id' => 'id']);
     }
+
+    public function setThumbnail($value)
+    {
+        $this->image = $value;
+    }
+
+    public function getThumbnail()
+    {
+        $thumb = dirname($this->image). "/s_" .basename($this->image);
+        return $thumb;
+    }
 }

@@ -107,7 +107,7 @@ if($model->logo) {
                         <tr>
                             <td class="ordering" style="width: 35px"></td>
                             <td>
-                                <img src="/<?=$photo->photo->image?>" height="60" />
+                                <img src="/<?=$photo->photo->thumbnail?>" height="60" />
                             </td>
                             <td style="width: 5%">
                                 <span class="material-icons remove-photo hand" data-content="<?=$model->id?>" data-id="<?=$photo->id?>">delete</span>

@@ -228,7 +228,10 @@ class Content extends \yii\db\ActiveRecord
 
         if($this->contentPhotos) {
             foreach($this->contentPhotos as $photo) {
-                $screenshots[] = $absoluteUrl.$photo->photo->image;
+                $screenshots[] = [
+                    "src" => $absoluteUrl.$photo->photo->image,
+                    "thumbnail" => $absoluteUrl.$photo->photo->thumbnail
+                ];
             }
         }
 
