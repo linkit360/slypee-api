@@ -16,6 +16,8 @@ use app\models\Category;
 use app\models\CurrencyTypes;
 use app\models\ContentTypes;
 use app\models\Content;
+use app\models\Photos;
+use app\models\ContentPhotos;
 use app\modules\admin\models\ContentFilterForm;
 use app\modules\admin\models\PerPageSettings;
 
@@ -330,6 +332,9 @@ class ContentController extends \yii\web\Controller
                     $model->logo->saveAs($model->uploadPath . $new_logo_name);
                 }
 
+                // new photos
+                $model->savePhotosIds();
+
                 $data["errors"] = "";
                 $data["success"] = 1;
                 $data["unblock"] = 1;
@@ -484,4 +489,40 @@ class ContentController extends \yii\web\Controller
         }
     }
 
+    public function actionPhoto()
+    {
+        $model = new Photos();
+
+        if (Yii::$app->request->isPost) {
+
+            $model->imageFiles = UploadedFile::getInstances($model, 'image');
+
+            if ($ids = $model->upload()) {
+
+                return json_encode(["ids" => $ids],JSON_PRETTY_PRINT);
+            }
+        }
+
+        throw new NotFoundHttpException('Error', 404);
+    }
+
+    public function actionRemovePhoto() {
+        $post = Yii::$app->request->post();
+        $id = $post["id"];
+        $content_id = $post["content_id"];
+
+        $model = ContentPhotos::find()->where(['id' => $id, 'content_id' => $content_id])->one();
+
+        if(!$model) {
+            throw new NotFoundHttpException('Page not found' ,404);
+        } else {
+            $photo_id = $model->photo_id;
+            $photo = Photos::find()->where(['id' => $photo_id])->one();
+            unlink($photo->image);
+            $model->delete();
+            $photo->delete();
+
+            return json_encode(["status" => 1],JSON_PRETTY_PRINT);
+        }
+    }
 }

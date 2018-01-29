@@ -1,5 +1,12 @@
+body {
+    min-width: 1280px;
+}
 .nowrap {
     white-space: nowrap;
+}
+
+.hand {
+    cursor: pointer;
 }
 
 h1 {

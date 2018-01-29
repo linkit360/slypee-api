@@ -13,6 +13,46 @@ $(function() {
 
     $('input.date_picker').Zebra_DatePicker(date_picker_options);
 
+    // dropzone
+    $("#slypee-dropzone").dropzone({
+        url: "/admin/content/photo",
+        uploadMultiple: true,
+        addRemoveLinks: true,
+        maxFilesize: 5,
+        paramName: "image",
+        headers: {
+            "X-CSRF-Token": $('meta[name="csrf-token"]').attr("content")
+        },
+        successmultiple: function(files, r) {
+            var p = $(this.element).closest('form');
+            var rJSON = JSON.parse(r);
+            var el = null;
+
+            if(rJSON.ids) {
+                for(var i=0; i<rJSON.ids.length; i++) {
+                   el = $("<input/>", {
+                       type: "hidden",
+                       name: "photos_ids[]",
+                       value: rJSON.ids[i]
+                   });
+
+                   $(files[i].previewElement).prepend(el);
+
+                }
+            }
+        }
+    });
+
+    // remove photo
+    $(document).on("click", ".remove-photo", function() {
+        var el = $(this);
+        $.post("/admin/content/remove-photo", {"id": el.data("id"), "content_id": el.data("content"), "_csrf": $('meta[name="csrf-token"]').attr("content")}, function(r) {
+            el.closest("tr").remove();
+        }, "json");
+
+        return false;
+    });
+
     // drag
     $(".sortable").tableDnD({
         onDragClass: "ordering-progress",

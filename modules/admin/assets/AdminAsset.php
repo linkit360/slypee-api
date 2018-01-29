@@ -8,11 +8,11 @@ class AdminAsset extends AssetBundle
 {
     public $sourcePath = '@app/modules/admin/web';
     public $css = [
+        'css/dropzone.css',
         'css/materialize.min.css',
         'css/slypee.materialize.css',
         'css/admin.css',
         'css/zebra.css',
-        'css/dropzone.css'
     ];
 
     // Path to admin.css file : $sourcePath/css/admin.css

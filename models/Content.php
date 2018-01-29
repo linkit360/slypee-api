@@ -25,6 +25,7 @@ class Content extends \yii\db\ActiveRecord
 {
     private $oldCategoryId;
     private $oldCategory;
+    public $photos_ids;
 
     public $uploadPath = "uploads/content/";
     private $logType = 'content';
@@ -58,7 +59,8 @@ class Content extends \yii\db\ActiveRecord
             [['content_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => ContentTypes::className(), 'targetAttribute' => ['content_type_id' => 'id']],
             [['currency_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => CurrencyTypes::className(), 'targetAttribute' => ['currency_type_id' => 'id']],
             [['price', 'active', 'category_id', 'content_type_id', 'currency_type_id'], 'filter', 'filter' => 'intval'],
-            [['rating'], 'filter', 'filter' => 'floatval']
+            [['rating'], 'filter', 'filter' => 'floatval'],
+            ['photos_ids', 'each', 'rule' => ['integer']],
         ];
     }
 
@@ -107,6 +109,10 @@ class Content extends \yii\db\ActiveRecord
         return $this->hasOne(CurrencyTypes::className(), ['id' => 'currency_type_id']);
     }
 
+    public function getContentPhotos()
+    {
+        return $this->hasMany(ContentPhotos::className(), ['content_id' => 'id']);
+    }
 
     public function afterFind()
     {
@@ -217,6 +223,15 @@ class Content extends \yii\db\ActiveRecord
     }
 
     public function prepareForApi() {
+        $screenshots = [];
+        $absoluteUrl = Yii::$app->urlManager->createAbsoluteUrl(['/']);
+
+        if($this->contentPhotos) {
+            foreach($this->contentPhotos as $photo) {
+                $screenshots[] = $absoluteUrl.$photo->photo->image;
+            }
+        }
+
         return [
             "id" => $this->id,
             "name" => $this->name,
@@ -225,11 +240,19 @@ class Content extends \yii\db\ActiveRecord
             "rating" => $this->rating,
             "type" => $this->contentType->name,
             "currency" => $this->currencyType->name,
-            "logo" => Yii::$app->urlManager->createAbsoluteUrl(['/']).$this->uploadPath.$this->logo,
+            "logo" => $absoluteUrl.$this->uploadPath.$this->logo,
             "categoryId" => $this->category_id,
-            "screenshots" => [],
+            "screenshots" => $screenshots,
             "video" => $this->video,
             "producer" => $this->producer
         ];
+    }
+
+    public function savePhotosIds() {
+        if($this->photos_ids) {
+            foreach ($this->photos_ids as $photo_id) {
+                (new ContentPhotos)->add($photo_id, $this->id);
+            }
+        }
     }
 }

@@ -63,7 +63,8 @@ class ContentController extends ActiveController
                 throw new NotFoundHttpException('Search query is too short', 404);
             }
 
-            $query = $query->andWhere(["like", "name", $searchQuery]);
+            // postgress ilike --- mysql like
+            $query = $query->andWhere(["ilike", "name", $searchQuery]);
         } else {
             throw new NotFoundHttpException('Search query is too short', 404);
         }
@@ -95,8 +96,8 @@ class ContentController extends ActiveController
         $ordering = [
             "rating" => "rating DESC",
             "-rating" => "rating ASC",
-            "top" => "rating ASC",
-            "-top" => "rating DESC"
+            "top" => "priority ASC",
+            "-top" => "priority DESC"
         ];
 
         $headers = Yii::$app->request->headers;

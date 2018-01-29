@@ -96,6 +96,36 @@ if($model->logo) {
     'check' => 1
 ]) ?>
 
+<?php
+    if($model->contentPhotos) {
+        ?>
+        <div class="table-content">
+            <table class="striped responsive-table">
+                <?php
+                    foreach ($model->contentPhotos as $photo) {
+                        ?>
+                        <tr>
+                            <td class="ordering" style="width: 35px"></td>
+                            <td>
+                                <img src="/<?=$photo->photo->image?>" height="60" />
+                            </td>
+                            <td style="width: 5%">
+                                <span class="material-icons remove-photo hand" data-content="<?=$model->id?>" data-id="<?=$photo->id?>">delete</span>
+                            </td>
+                        </tr>
+                        <?php
+                    }
+                ?>
+            </table>
+        </div>
+        <?php
+    }
+?>
+
+<div class="dropzone-slypee"  id="slypee-dropzone">
+    Add screenshots of content
+</div>
+
 <div class="form-group flex flex_end">
     <a class="btn orange waves-effect waves-light" href="javascript:history.back()" style="margin-right: 20px">Cancel</a>
     <?= Html::submitButton($btn, ['class' => 'btn btn-primary green waves-effect waves-light']) ?>
@@ -116,14 +146,3 @@ if($model->logo) {
 </div>
 
 <?php ActiveForm::end(); ?>
-
-<?php
-    if($model->id) {
-        ?>
-        <h1>Screenshots</h1>
-        <form action="/file-upload" class="dropzone dropzone-slypee"  id="my-awesome-dropzone">
-            <input type="file" name="file" multiple />
-        </form>
-        <?php
-    }
-?>
