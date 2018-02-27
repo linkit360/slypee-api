@@ -12,6 +12,8 @@ class ContentTypesController extends \yii\web\Controller
 {
     public function actionIndex()
     {
+        die();
+
         $query = ContentTypes::find();
 
         $types = $query->orderBy("name")->all();
@@ -23,6 +25,8 @@ class ContentTypesController extends \yii\web\Controller
 
     public function actionCreate()
     {
+        die();
+
         $model = new ContentTypes();
 
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
@@ -62,6 +66,8 @@ class ContentTypesController extends \yii\web\Controller
 
     public function actionUpdate($id)
     {
+        die();
+
         $model = ContentTypes::find()->where(['id' => $id])->one();
 
         if(!$model) {

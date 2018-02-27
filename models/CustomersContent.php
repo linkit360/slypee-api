@@ -103,4 +103,21 @@ class CustomersContent extends \yii\db\ActiveRecord
     {
         return "";
     }
+
+    public function prepareForCustomerApi() {
+        return [
+            "id" => $this->id,
+            "contentId" => $this->content_id,
+            "date" => $this->date,
+            "name" => $this->content->name,
+            "price" => $this->content->price,
+            "rating" => $this->content->rating,
+            "type" => $this->content->contentType->name,
+            "currency" => $this->content->currencyType->name,
+            "logo" => Yii::$app->urlManager->createAbsoluteUrl(['/']) . $this->content->uploadPath . $this->content->logo,
+            "categoryId" => $this->content->category_id,
+            "categoryName" => $this->content->category->name,
+            "producer" => $this->content->producer
+        ];
+    }
 }

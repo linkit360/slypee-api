@@ -15,8 +15,13 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <div class="flex flex_centered flex_between">
     <h1><?= Html::encode($this->title) ?></h1>
-
-    <?= AddNewItem::widget(["link" => Url::to(['content/add'])]) ?>
+    <?php
+    if (Yii::$app->user->can('createContent')) {
+        ?>
+        <?= AddNewItem::widget(["link" => Url::to(['content/add'])]) ?>
+        <?php
+    }
+    ?>
 </div>
 
 <div class="search-form">
@@ -80,21 +85,24 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="cell cell_half">
             <?= $form->field($search, 'category')->dropDownList($categories, [
                 'class' => 'materialize-select',
-                'prompt'=>'---'
+                'prompt'=>'---',
+                'id'=>'categories'
             ]) ?>
         </div>
 
         <div class="cell">
             <?= $form->field($search, 'content_type')->dropDownList($content_types, [
                 'class' => 'materialize-select',
-                'prompt'=>'---'
+                'prompt'=>'---',
+                'id'=>'content_types'
             ]) ?>
         </div>
 
         <div class="cell">
             <?= $form->field($search, 'currency_type')->dropDownList($currency_types, [
                 'class' => 'materialize-select',
-                'prompt'=>'---'
+                'prompt'=>'---',
+                'id'=>'currency_types'
             ]) ?>
         </div>
     </div>
@@ -148,9 +156,9 @@ $this->params['breadcrumbs'][] = $this->title;
                 <th><?= $sort->link('id', ["class" => "sort-link"]) ?></th>
                 <th><?= $sort->link('name', ["class" => "sort-link"]) ?></th>
                 <th><?= $sort->link('category.name', ["class" => "sort-link", "label" => "Category"]) ?></th>
-                <th><?= $sort->link('type', ["class" => "sort-link"]) ?></th>
+                <th><?= $sort->link('content_types.name', ["class" => "sort-link", "label" => "Type"]) ?></th>
                 <th><?= $sort->link('price', ["class" => "sort-link"]) ?></th>
-                <th><?= $sort->link('currency', ["class" => "sort-link"]) ?></th>
+                <th><?= $sort->link('currency_types.name', ["class" => "sort-link", "label" => "Currency"]) ?></th>
                 <th><?= $sort->link('rating', ["class" => "sort-link"]) ?></th>
                 <th><?= $sort->link('active', ["class" => "sort-link"]) ?></th>
                 <th><?= $sort->link('created_at', ["class" => "sort-link"]) ?></th>
@@ -167,10 +175,27 @@ $this->params['breadcrumbs'][] = $this->title;
                     </td>
                     <td><?= $item->id ?></td>
                     <td><?= ActionInput::widget(["item" => $item, "property" => "name"]) ?></td>
-                    <td><?= $item->category->name ?></td>
-                    <td><?= $item->contentType->name ?></td>
+                    <td>
+                        <div class="action-input-select">
+                            <span class="action-input-select_value"><?= $item->category->name ?></span>
+                            <div class="action-input-select_container" data-container="categories" data-name="category_id" data-current="<?= $item->category_id ?>">
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="action-input-select">
+                            <span class="action-input-select_value"><?= $item->contentType->name ?></span>
+                            <div class="action-input-select_container" data-container="content_types" data-name="content_type_id" data-current="<?= $item->content_type_id ?>">
+                            </div>
+                        </div>
+                    </td>
                     <td><?= ActionInput::widget(["item" => $item, "property" => "price"]) ?></td>
-                    <td><?= $item->currencyType->name ?></td>
+                    <td>
+                        <div class="action-input-select">
+                            <span class="action-input-select_value"><?= $item->currencyType->name ?></span>
+                            <div class="action-input-select_container" data-container="currency_types" data-name="currency_type_id" data-current="<?= $item->currency_type_id ?>">
+                            </div>
+                        </div>
                     <td><?= ActionInput::widget(["item" => $item, "property" => "rating"]) ?></td>
                     <td><?= ActionCheckbox::widget(["item" => $item, "property" => "active"]) ?></td>
                     <td class="nowrap grey-text darken-1"><?= date("m-d-y", $item->created_at) ?></td>
@@ -181,21 +206,34 @@ $this->params['breadcrumbs'][] = $this->title;
                             <li>
                                 <a href="<?=Url::to(['content/view', 'id' => $item->id]);?>" class="nowrap"><i class="material-icons left">remove_red_eye</i>View</a>
                             </li>
-                            <li>
-                                <a href="<?=Url::to(['content/update', 'id' => $item->id]);?>" class="nowrap"><i class="material-icons left">edit</i>Update</a>
-                            </li>
-                            <li>
-                                <a href="<?=Url::to(['content/reactivate', 'id' => $item->id]);?>" class="nowrap activate">
-                                    <i class="material-icons left">check</i>
-                                    <span data-active="Deactivate" data-nonactive="Activate"><?= $item->active ? "Deactivate" : "Activate"?></span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="<?=Url::to(['log/', 'type' => 'content', 'object_id' => $item->id]);?>" class="nowrap"><i class="material-icons left">history</i>History</a>
-                            </li>
-                            <li>
-                                <a href="<?=Url::to(['content/customers', 'category_id' => $item->id]);?>" class="nowrap"><i class="material-icons left">list</i>Customers List</a>
-                            </li>
+                            <?php
+                            if (Yii::$app->user->can('updateContent')) {
+                            ?>
+                                <li>
+                                    <a href="<?= Url::to(['content/update', 'id' => $item->id]); ?>" class="nowrap"><i
+                                                class="material-icons left">edit</i>Update</a>
+                                </li>
+                                <li>
+                                    <a href="<?= Url::to(['content/reactivate', 'id' => $item->id]); ?>"
+                                       class="nowrap activate">
+                                        <i class="material-icons left">check</i>
+                                        <span data-active="Deactivate"
+                                              data-nonactive="Activate"><?= $item->active ? "Deactivate" : "Activate" ?></span>
+                                    </a>
+                                </li>
+                                <?php
+                            }
+                            ?>
+                            <?php
+                            if (Yii::$app->user->can('viewContentLog')) {
+                                ?>
+                                <li>
+                                    <a href="<?= Url::to(['log/content', 'object_id' => $item->id]); ?>" class="nowrap"><i
+                                                class="material-icons left">history</i>History</a>
+                                </li>
+                                <?php
+                            }
+                            ?>
                         </ul>
                     </td>
                 </tr>

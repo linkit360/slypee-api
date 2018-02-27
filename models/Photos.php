@@ -72,10 +72,17 @@ class Photos extends \yii\db\ActiveRecord
                 $model->image = $this->uploadPath . $name;
                 $model->created_at = time();
                 $model->save();
+
+                // need to calculate dir paths
+                $path = preg_replace("/(\d.+)(\d{3})(\d{3})$/", "$1/$2/$3/", sprintf('%09d', $model->id));
+                mkdir($this->uploadPath . $path, 0777, true);
+                $model->image = $this->uploadPath . $path. $name;
+                $model->save();
+
                 $file->saveAs($model->image);
                 $ids[] = $model->id;
 
-                Image::thumbnail($this->uploadPath . $name, null, 300)->save($this->uploadPath . "s_". $name, ['jpeg_quality' => 95]);
+                Image::thumbnail($this->uploadPath . $path. $name, null, 300)->save($this->uploadPath . $path . "s_". $name, ['jpeg_quality' => 95]);
             }
 
             return $ids;
@@ -99,7 +106,7 @@ class Photos extends \yii\db\ActiveRecord
 
     public function getThumbnail()
     {
-        $thumb = dirname($this->image). "/s_" .basename($this->image);
+        $thumb = (dirname($this->image) != "." ? dirname($this->image)."/": "") . "s_" . basename($this->image);
         return $thumb;
     }
 }

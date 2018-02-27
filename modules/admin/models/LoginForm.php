@@ -4,6 +4,7 @@ namespace app\modules\admin\models;
 
 use Yii;
 use yii\base\Model;
+
 use app\models\SlypeeUser;
 
 /**
@@ -20,7 +21,6 @@ class LoginForm extends Model
     public $active = false;
 
     private $_user = false;
-
 
     /**
      * @return array the validation rules.
@@ -43,6 +43,14 @@ class LoginForm extends Model
         return "";
     }
 
+    public function attributeLabels()
+    {
+        return [
+            'username' => 'Email',
+            'password' => 'Password'
+        ];
+    }
+
     /**
      * Validates the password.
      * This method serves as the inline validation for password.
@@ -56,7 +64,7 @@ class LoginForm extends Model
             $user = $this->getUser();
 
             if (!$user || !$user->validatePassword($this->password)) {
-                $this->addError($attribute, 'Incorrect username or password.');
+                $this->addError($attribute, 'Incorrect email or password.');
             }
         }
     }
@@ -92,7 +100,7 @@ class LoginForm extends Model
     public function getUser()
     {
         if ($this->_user === false) {
-            $this->_user = SlypeeUser::findByUsername($this->username);
+            $this->_user = SlypeeUser::findByEmail($this->username);
         }
 
         return $this->_user;

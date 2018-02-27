@@ -21,6 +21,7 @@ class AdminAsset extends AssetBundle
         'js/materialize.min.js',
         'js/zebra_datepicker.js',
         'js/jquery.tablednd_0_5.js',
+        'js/jquery.autocomplete.min.js',
         'js/dropzone.js'
     ];
 

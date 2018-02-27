@@ -18,14 +18,24 @@ use app\models\ContentTypes;
 use app\models\Content;
 use app\models\Photos;
 use app\models\ContentPhotos;
+use app\models\RelatedContent;
 use app\modules\admin\models\ContentFilterForm;
 use app\modules\admin\models\PerPageSettings;
 
 class ContentController extends \yii\web\Controller
 {
-    public function actionTop()
+    public function init()
     {
         if (!Yii::$app->user->can('viewContent')) {
+            return $this->goHome();
+        }
+
+        parent::init();
+    }
+
+    public function actionTop()
+    {
+        if (!Yii::$app->user->can('updateContent')) {
             return $this->goHome();
         }
 
@@ -73,7 +83,7 @@ class ContentController extends \yii\web\Controller
                 $current_model->priority = $prev_priority;
             }
 
-            $current_model->save();
+            $current_model->save(false);
 
             $data = [0 => [
                 "id" => $current_model->id,
@@ -89,13 +99,19 @@ class ContentController extends \yii\web\Controller
             return json_encode($data,JSON_PRETTY_PRINT);
         }
 
-        $per_page_settings = PerPageSettings::find()->where(['name' => 'content'])->one();
+        // from session
+        $session = Yii::$app->session;
+        $session_per_page_settings = $session->get("content_per_page_settings");
 
-        if(!$per_page_settings) {
+        if(!$session_per_page_settings) {
+            $per_page_settings = PerPageSettings::find()->where(['name' => 'content'])->one();
+
             $page_size = 10;
+
         } else {
-            $page_size = $per_page_settings->value;
+            $page_size = $session_per_page_settings;
         }
+
 
         $query = Content::find();
 
@@ -108,6 +124,8 @@ class ContentController extends \yii\web\Controller
         return $this->render('top', [
             "content" => $content,
             "pages" => $pages,
+            "page_size" => $page_size,
+            "session_per_page_settings" => $session_per_page_settings
         ]);
     }
 
@@ -130,9 +148,9 @@ class ContentController extends \yii\web\Controller
                 'id',
                 'name',
                 'category.name',
-                'type',
+                'content_types.name',
                 'price',
-                'currency',
+                'currency_types.name',
                 'rating',
                 'created_at',
                 'updated_at',
@@ -149,7 +167,7 @@ class ContentController extends \yii\web\Controller
         $currency_types = ArrayHelper::map(CurrencyTypes::find()->orderBy("name")->all(), "id", "name");
         $content_types = ArrayHelper::map(ContentTypes::find()->orderBy("name")->all(), "id", "name");
 
-        $query = Content::find()->joinWith("category");
+        $query = Content::find()->joinWith("category")->joinWith("contentType")->joinWith("currencyType");
 
         if ($search->validate()) {
             // active
@@ -173,22 +191,22 @@ class ContentController extends \yii\web\Controller
 
             // dates
             if ($search->created_date_begin) {
-                $created_date_begin = DateTime::createFromFormat('m-d-Y', $search->created_date_begin);
+                $created_date_begin = DateTime::createFromFormat('m-d-Y H:i:s', $search->created_date_begin." 00:00:00");
                 $query = $query->andWhere([">=", "content.created_at", $created_date_begin->getTimestamp()]);
             }
 
             if ($search->created_date_end) {
-                $created_date_end = DateTime::createFromFormat('m-d-Y', $search->created_date_end);
+                $created_date_end = DateTime::createFromFormat('m-d-Y H:i:s', $search->created_date_end." 23:59:59");
                 $query = $query->andWhere(["<=", "content.created_at", $created_date_end->getTimestamp()]);
             }
 
             if ($search->updated_date_begin) {
-                $updated_date_begin = DateTime::createFromFormat('m-d-Y', $search->updated_date_begin);
+                $updated_date_begin = DateTime::createFromFormat('m-d-Y H:i:s', $search->updated_date_begin." 00:00:00");
                 $query = $query->andWhere([">=", "content.updated_at", $updated_date_begin->getTimestamp()]);
             }
 
             if ($search->updated_date_end) {
-                $updated_date_end = DateTime::createFromFormat('m-d-Y', $search->updated_date_end);
+                $updated_date_end = DateTime::createFromFormat('m-d-Y H:i:s', $search->updated_date_end." 23:59:59");
                 $query = $query->andWhere(["<=", "content.updated_at", $updated_date_end->getTimestamp()]);
             }
 
@@ -228,7 +246,12 @@ class ContentController extends \yii\web\Controller
 
     public function actionCreate()
     {
+        if (!Yii::$app->user->can('createContent')) {
+            return $this->goHome();
+        }
+
         $model = new Content;
+        $model->active = 1;
         $model->scenario = 'contentCreate';
 
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
@@ -250,10 +273,9 @@ class ContentController extends \yii\web\Controller
 
             if ($model->validate()) {
 
-                $new_logo_name = Yii::$app->security->generateRandomString() . '.' . $model->logo->extension;
-                $model->logo->name = $new_logo_name;
                 $model->save();
-                $model->logo->saveAs($model->uploadPath.$new_logo_name);
+                $model->saveLogo();
+                $model->savePhotosIds();
 
                 $data["errors"] = "";
                 $data["success"] = 1;
@@ -281,13 +303,17 @@ class ContentController extends \yii\web\Controller
                 'content_types' => $content_types,
                 'title' => "New content",
                 'btn' => "Add content",
-                'model' => $model,
+                'model' => $model
             ]);
         }
     }
 
     public function actionView($id)
     {
+        if (!Yii::$app->user->can('viewContent')) {
+            return $this->goHome();
+        }
+
         $model = Content::find()->where(['id' => $id])->one();
 
         if(!$model) {
@@ -302,6 +328,10 @@ class ContentController extends \yii\web\Controller
 
     public function actionUpdate($id)
     {
+        if (!Yii::$app->user->can('updateContent')) {
+            return $this->goHome();
+        }
+
         $model = Content::find()->where(['id' => $id])->one();
         //$model->scenario = 'contentUpdate';
 
@@ -323,21 +353,37 @@ class ContentController extends \yii\web\Controller
 
             if ($model->validate()) {
                 // все данные корректны
-                if($logo) {
-                    $new_logo_name = Yii::$app->security->generateRandomString() . '.' . $model->logo->extension;
-                    $model->logo->name = $new_logo_name;
-                }
                 $model->save();
+
                 if($logo) {
-                    $model->logo->saveAs($model->uploadPath . $new_logo_name);
+                    $model->saveLogo();
                 }
 
                 // new photos
                 $model->savePhotosIds();
 
+                // new related content
+                $related = isset(Yii::$app->request->post()["related"]) ? Yii::$app->request->post()["related"]:null;
+
+                if($related) {
+                    foreach ($related as $r) {
+                        $related_model = new RelatedContent();
+
+                        $related_model->load([
+                           "content_id_a" => $id,
+                           "content_id_b" => $r
+                        ]);
+
+                        if($related_model->validate()) {
+                            $related_model->save();
+                        }
+                    }
+                }
+
                 $data["errors"] = "";
                 $data["success"] = 1;
                 $data["unblock"] = 1;
+                $data["redirectUrl"] = Url::to(['content/view', 'id' => $model->id]);
                 return json_encode($data,JSON_PRETTY_PRINT);
 
             } else {
@@ -360,13 +406,17 @@ class ContentController extends \yii\web\Controller
                 'content_types' => $content_types,
                 'title' => "Edit content",
                 'btn' => "Save changes",
-                'model' => $model,
+                'model' => $model
             ]);
         }
     }
 
     public function actionActivate()
     {
+        if (!Yii::$app->user->can('updateContent')) {
+            return $this->goHome();
+        }
+
         if(Yii::$app->request->post()) {
             $post = Yii::$app->request->post();
             $ids = $post["ids"];
@@ -378,8 +428,8 @@ class ContentController extends \yii\web\Controller
             foreach($ids as $id) {
                 $model = Content::find()->where(['id' => $id])->one();
                 if($model) {
-                    $model->load(array("active" => 1));
-                    $model->save();
+                    $model->load(array("active" => Yii::$app->params["connection_type"] == "pgsql" ? true:1));
+                    $model->save(false);
                 }
             }
 
@@ -392,6 +442,10 @@ class ContentController extends \yii\web\Controller
 
     public function actionDeactivate()
     {
+        if (!Yii::$app->user->can('updateContent')) {
+            return $this->goHome();
+        }
+
         if(Yii::$app->request->post()) {
             $post = Yii::$app->request->post();
             $ids = $post["ids"];
@@ -403,8 +457,8 @@ class ContentController extends \yii\web\Controller
             foreach($ids as $id) {
                 $model = Content::find()->where(['id' => $id])->one();
                 if($model) {
-                    $model->load(array("active" => 0));
-                    $model->save();
+                    $model->load(array("active" => Yii::$app->params["connection_type"] == "pgsql" ? false:0));
+                    $model->save(false);
                 }
             }
 
@@ -416,6 +470,10 @@ class ContentController extends \yii\web\Controller
     }
 
     public function actionAjaxUpdate() {
+        if (!Yii::$app->user->can('updateContent')) {
+            return $this->goHome();
+        }
+
         if(Yii::$app->request->post()) {
 
             $errors = [];
@@ -436,7 +494,10 @@ class ContentController extends \yii\web\Controller
                         "name" => $post["name"][$key],
                         "active" => $post["active"][$key],
                         "price" => $post["price"][$key],
-                        "rating" => $post["rating"][$key]
+                        "rating" => $post["rating"][$key],
+                        "category_id" => $post["category_id"][$key],
+                        "currency_type_id" => $post["currency_type_id"][$key],
+                        "content_type_id" => $post["content_type_id"][$key]
                     );
 
                     $models[$id]->load($data[$id]);
@@ -475,22 +536,33 @@ class ContentController extends \yii\web\Controller
 
     public function actionReactivate($id)
     {
+        if (!Yii::$app->user->can('updateContent')) {
+            return $this->goHome();
+        }
+
         if (Yii::$app->request->isPost) {
             $model = Content::find()->where(['id' => $id])->one();
 
             if (!$model) {
                 throw new NotFoundHttpException('Content not found', 404);
             } else {
-                $model->load(array("active" => $model->active ? 0 : 1));
-                $model->save();
+                $active = Yii::$app->params["connection_type"] == "pgsql" ? (intval($model->active) ? true:false) : intval($model->active);
+                $active = !$active;
 
-                return json_encode(["status" => $model->active ? 1:-1],JSON_PRETTY_PRINT);
+                $model->load(array("active" => $active));
+                $model->save(false);
+
+                return json_encode(["status" => $active ? 1:-1],JSON_PRETTY_PRINT);
             }
         }
     }
 
     public function actionPhoto()
     {
+        if (!Yii::$app->user->can('updateContent')) {
+            return $this->goHome();
+        }
+
         $model = new Photos();
 
         if (Yii::$app->request->isPost) {
@@ -507,6 +579,10 @@ class ContentController extends \yii\web\Controller
     }
 
     public function actionRemovePhoto() {
+        if (!Yii::$app->user->can('updateContent')) {
+            return $this->goHome();
+        }
+
         $post = Yii::$app->request->post();
         $id = $post["id"];
         $content_id = $post["content_id"];
@@ -525,5 +601,51 @@ class ContentController extends \yii\web\Controller
 
             return json_encode(["status" => 1],JSON_PRETTY_PRINT);
         }
+    }
+
+    public function actionRemoveRelated() {
+        if (!Yii::$app->user->can('updateContent')) {
+            return $this->goHome();
+        }
+
+        $post = Yii::$app->request->post();
+        $id = $post["id"];
+
+        $model = RelatedContent::find()->where(['id' => $id])->one();
+
+        if($model) {
+            $model->delete();
+        }
+
+        return json_encode(["status" => 1],JSON_PRETTY_PRINT);
+    }
+
+    public function actionSearch()
+    {
+        if (!Yii::$app->user->can('updateContent')) {
+            return $this->goHome();
+        }
+
+        if(!Yii::$app->request->isPost) {
+            throw new NotFoundHttpException('Page not found' ,404);
+        }
+
+        $post = Yii::$app->request->post();
+
+        // postgres -> ilike
+        // postgress ilike --- mysql like
+        $like = Yii::$app->params["connection_type"] == "pgsql" ? "ilike" : "like";
+        $content = Content::find()->orWhere([$like, "name", $post["query"]])->orWhere(["id" => intval($post["query"])])->all();
+        $preparedContent = [];
+
+        foreach ($content as $c) {
+            $preparedContent[] = [
+                "id" => $c->id,
+                "value" => $c->name,
+                "logo" => "/".$c->uploadPath.$c->logo
+            ];
+        }
+
+        return json_encode(["suggestions" => $preparedContent],JSON_PRETTY_PRINT);
     }
 }

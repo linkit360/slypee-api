@@ -38,14 +38,16 @@ class Slider extends \yii\db\ActiveRecord
         return [
             [['title', 'subtitle', 'link', 'priority', 'created_at', 'updated_at'], 'required'],
             [['description'], 'string'],
-            [['priority', 'created_at', 'updated_at', 'active'], 'integer'],
+            [['priority', 'created_at', 'updated_at'], 'integer'],
             [['title', 'subtitle'], 'string', 'max' => 50],
             [['link'], 'string', 'max' => 128],
-            //[['image'], 'string', 'max' => 255],
             [['image'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg'],
             [['image'], 'required', 'on' => 'sliderCreate'],
             [['priority'], 'unique'],
-            [['priority', 'active'], 'filter', 'filter' => 'intval']
+            [['priority'], 'filter', 'filter' => 'intval'],
+            ['active', 'filter', 'filter' => function ($value) {
+                return Yii::$app->params["connection_type"] == "pgsql" ? (intval($value) ? true:false) : intval($value);
+            }],
         ];
     }
 
@@ -88,6 +90,10 @@ class Slider extends \yii\db\ActiveRecord
     {
         parent::afterSave($insert, $changedAttributes);
 
+        if(Yii::$app->user->isGuest) {
+            return;
+        }
+
         // update action is worked if we change some fields besides active field
         $update = false;
 
@@ -128,5 +134,22 @@ class Slider extends \yii\db\ActiveRecord
                 $this->save();
             }
         }
+    }
+
+    public function saveImage()
+    {
+        $new_image_name = Yii::$app->security->generateRandomString(8) . '.' . $this->image->extension;
+        $this->image->name = $new_image_name;
+
+        $path = preg_replace("/(\d.+)(\d{3})(\d{3})$/", "$1/$2/$3/", sprintf('%09d', $this->id));
+
+        if(!file_exists($this->uploadPath . $path)) {
+            mkdir($this->uploadPath . $path, 0777, true);
+        }
+
+        $this->image->saveAs($this->uploadPath . $path . $new_image_name);
+
+        $this->image = $path . $new_image_name;
+        $this->save();
     }
 }

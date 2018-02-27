@@ -25,6 +25,13 @@ $this->params['breadcrumbs'][] = $this->title;
     'errorCssClass' => 'error'
 ]); ?>
 
+<?= $form->field($model, 'active')->checkbox([
+    'template' => "<div class=\"row\">{input} {label}</div>",
+    'class' => "filled-in indigo-field",
+    'uncheck' => 0,
+    'check' => 1
+]) ?>
+
 
 <?= $form->field($model, 'username')->input('text', [
     'style' => 'width: 30%'
@@ -35,7 +42,8 @@ $this->params['breadcrumbs'][] = $this->title;
 ]) ?>
 
 <?= $form->field($model, 'role')->dropDownList($roles, [
-    'class' => 'materialize-select'
+    'class' => 'materialize-select',
+    'prompt'=>'---'
 ]) ?>
 
 <?= $form->field($model, 'password')->input('password', [
@@ -46,19 +54,14 @@ $this->params['breadcrumbs'][] = $this->title;
     'style' => 'width: 30%'
 ]) ?>
 
-<?= $form->field($model, 'active')->checkbox([
-    'template' => "<div class=\"row\">{input} {label}</div>",
-    'class' => "filled-in indigo-field",
-    'uncheck' => 0,
-    'check' => 1
-]) ?>
-
 <div class="form-group flex flex_end">
     <a class="btn orange waves-effect waves-light" href="javascript:history.back()" style="margin-right: 20px">Cancel</a>
     <?= Html::submitButton($btn, ['class' => 'btn btn-primary green waves-effect waves-light']) ?>
 </div>
 
-<div class="form-summary"></div>
+<div class="form-summary">
+    <?= $form->errorSummary($model, ["header" => "<span class=\"general-error\">Please fix all errors</span>"]); ?>
+</div>
 
 <div class="preloader-wrapper small" id="edit-loader">
     <div class="spinner-layer spinner-green-only">

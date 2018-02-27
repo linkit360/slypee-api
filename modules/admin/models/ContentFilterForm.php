@@ -48,7 +48,8 @@ class ContentFilterForm extends Model
         return [
             'type' => 'Search by:',
             'name' => '',
-            'id' => ''
+            'id' => '',
+            'currency_type' => 'Currency'
         ];
     }
 

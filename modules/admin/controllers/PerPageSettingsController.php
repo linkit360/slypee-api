@@ -10,6 +10,10 @@ class PerPageSettingsController extends Controller
 {
     public function actionIndex()
     {
+        if (!Yii::$app->user->identity->is_admin) {
+            return $this->goHome();
+        }
+
         $query = PerPageSettings::find();
 
         $settings = $query->orderBy("name")->all();
@@ -21,6 +25,10 @@ class PerPageSettingsController extends Controller
 
     public function actionUpdate($id)
     {
+        if (!Yii::$app->user->identity->is_admin) {
+            return $this->goHome();
+        }
+
         $model = PerPageSettings::find()->where(['id' => $id])->one();
 
         if(!$model) {

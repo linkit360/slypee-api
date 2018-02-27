@@ -9,8 +9,14 @@ use yii\helpers\Url;
 
 class CurrencyTypesController extends \yii\web\Controller
 {
+
     public function actionIndex()
     {
+
+        if (!Yii::$app->user->identity->is_admin) {
+            return $this->goHome();
+        }
+
         $query = CurrencyTypes::find();
 
         $types = $query->orderBy("name")->all();
@@ -22,6 +28,10 @@ class CurrencyTypesController extends \yii\web\Controller
 
     public function actionCreate()
     {
+        if (!Yii::$app->user->identity->is_admin) {
+            return $this->goHome();
+        }
+
         $model = new CurrencyTypes();
 
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
@@ -61,6 +71,10 @@ class CurrencyTypesController extends \yii\web\Controller
 
     public function actionUpdate($id)
     {
+        if (!Yii::$app->user->identity->is_admin) {
+            return $this->goHome();
+        }
+
         $model = CurrencyTypes::find()->where(['id' => $id])->one();
 
         if(!$model) {

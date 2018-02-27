@@ -11,12 +11,19 @@ use app\modules\admin\widgets\AddNewItem;
 
 $this->title = 'Categories';
 $this->params['breadcrumbs'][] = $this->title;
+
 ?>
 
 <div class="flex flex_centered flex_between">
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <?= AddNewItem::widget(["link" => Url::to(['category/add'])]) ?>
+    <?php
+    if (Yii::$app->user->can('createCategory')) {
+        ?>
+        <?= AddNewItem::widget(["link" => Url::to(['category/add'])]) ?>
+        <?php
+    }
+    ?>
 </div>
 
 <div class="search-form">
@@ -153,21 +160,39 @@ $this->params['breadcrumbs'][] = $this->title;
                             <li>
                                 <a href="<?=Url::to(['category/view', 'id' => $category->id]);?>" class="nowrap"><i class="material-icons left">remove_red_eye</i>View</a>
                             </li>
-                            <li>
-                                <a href="<?=Url::to(['category/update', 'id' => $category->id]);?>" class="nowrap"><i class="material-icons left">edit</i>Update</a>
-                            </li>
-                            <li>
-                                <a href="<?=Url::to(['category/reactivate', 'id' => $category->id]);?>" class="nowrap activate" data-note="Are you sure you want to deactivate category with Content. This Content will be not available for customers." data-content="<?= $category->content?>">
-                                    <i class="material-icons left">check</i>
-                                    <span data-active="Deactivate" data-nonactive="Activate"><?= $category->active ? "Deactivate" : "Activate"?></span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="<?=Url::to(['log/', 'type' => 'category', 'object_id' => $category->id]);?>" class="nowrap"><i class="material-icons left">history</i>History</a>
-                            </li>
-                            <li>
-                                <a href="<?=Url::to(['content/', 'category' => $category->id]);?>" class="nowrap"><i class="material-icons left">list</i>Content List</a>
-                            </li>
+                            <?php
+                            if (Yii::$app->user->can('updateCategory')) {
+                            ?>
+                                <li>
+                                    <a href="<?= Url::to(['category/update', 'id' => $category->id]); ?>" class="nowrap"><i class="material-icons left">edit</i>Update</a>
+                                </li>
+                                <li>
+                                    <a href="<?=Url::to(['category/reactivate', 'id' => $category->id]);?>" class="nowrap activate" data-note="Are you sure you want to deactivate category with Content. This Content will be not available for customers." data-content="<?= $category->content?>">
+                                        <i class="material-icons left">check</i>
+                                        <span data-active="Deactivate" data-nonactive="Activate"><?= $category->active ? "Deactivate" : "Activate"?></span>
+                                    </a>
+                                </li>
+                                <?php
+                            }
+                            ?>
+                            <?php
+                            if (Yii::$app->user->can('viewCategoryLog')) {
+                            ?>
+                                <li>
+                                    <a href="<?=Url::to(['log/category', 'object_id' => $category->id]);?>" class="nowrap"><i class="material-icons left">history</i>History</a>
+                                </li>
+                            <?php
+                            }
+                            ?>
+                            <?php
+                                if (Yii::$app->user->can('viewContent')) {
+                            ?>
+                                <li>
+                                    <a href="<?=Url::to(['content/', 'category' => $category->id]);?>" class="nowrap"><i class="material-icons left">list</i>Content List</a>
+                                </li>
+                            <?php
+                            }
+                            ?>
                         </ul>
                     </td>
                 </tr>

@@ -7,13 +7,30 @@ use yii\web\NotFoundHttpException;
 use yii\helpers\Url;
 use yii\web\UploadedFile;
 use yii\web\Controller;
+use yii\data\Pagination;
 
+use app\modules\admin\models\PerPageSettings;
+use app\modules\admin\models\SliderFilterForm;
 use app\models\Slider;
 
 class SliderController extends \yii\web\Controller
 {
+    public function init()
+    {
+        if (!Yii::$app->user->can('viewSlider')) {
+            return $this->goHome();
+        }
+
+        parent::init();
+    }
+
+
     public function actionTop()
     {
+        if (!Yii::$app->user->can('updateSlider')) {
+            return $this->goHome();
+        }
+
         if (Yii::$app->request->isAjax && Yii::$app->request->isPost) {
             $data = Yii::$app->request->post();
 
@@ -58,7 +75,7 @@ class SliderController extends \yii\web\Controller
                 $current_model->priority = $prev_priority;
             }
 
-            $current_model->save();
+            $current_model->save(false);
 
             $data = [0 => [
                 "id" => $current_model->id,
@@ -80,18 +97,67 @@ class SliderController extends \yii\web\Controller
 
     public function actionIndex()
     {
+        if (!Yii::$app->user->can('viewSlider')) {
+            return $this->goHome();
+        }
+
+        $per_page_settings = PerPageSettings::find()->where(['name' => 'slider'])->one();
+
+        if(!$per_page_settings) {
+            $page_size = 10;
+        } else {
+            $page_size = $per_page_settings->value;
+        }
+
+        // search
+        $search = new SliderFilterForm();
+        $search->load(Yii::$app->request->get());
+
         $query = Slider::find();
+
+        // apply filters
+        if($search->validate()) {
+            // active
+            if($search->active && in_array($search->active, ["yes", "no"])) {
+                $active = $search->active == "yes" ? 1:0;
+                $query = $query->andWhere(["=", "active", $active]);
+            }
+
+            if($search->type && in_array($search->type, ["id", "email", "name"])) {
+                if($search->type == "id" && $search->id) {
+                    $query = $query->andWhere(["=", "id", $search->id]);
+                }
+
+
+                if($search->type == "name" && $search->name) {
+                    $query = $query->andWhere(["like", "username", $search->name]);
+                }
+            }
+        }
+
+        $countQuery = clone $query;
+
+        $pages = new Pagination(['totalCount' => $countQuery->count(), 'pageSizeParam' => false, 'pageSize' => $page_size]);
+
+        $slider = $query->orderBy("id DESC")->offset($pages->offset)->limit($pages->limit)->all();
 
         $slider = $query->orderBy("priority")->all();
 
         return $this->render('index', [
-            "slider" => $slider
+            "slider" => $slider,
+            "search" => $search,
+            "pages" => $pages,
         ]);
     }
 
     public function actionCreate()
     {
+        if (!Yii::$app->user->can('createSlider')) {
+            return $this->goHome();
+        }
+
         $model = new Slider();
+        $model->active = 1;
         $model->scenario = 'sliderCreate';
 
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
@@ -114,11 +180,8 @@ class SliderController extends \yii\web\Controller
 
             if ($model->validate()) {
 
-                // все данные корректны
-                $new_image_name = Yii::$app->security->generateRandomString() . '.' . $model->image->extension;
-                $model->image->name = $new_image_name;
                 $model->save();
-                $model->image->saveAs($model->uploadPath.$new_image_name);
+                $model->saveImage();
 
                 $data["errors"] = "";
                 $data["success"] = 1;
@@ -146,6 +209,10 @@ class SliderController extends \yii\web\Controller
 
     public function actionUpdate($id)
     {
+        if (!Yii::$app->user->can('updateSlider')) {
+            return $this->goHome();
+        }
+
         $model = Slider::find()->where(['id' => $id])->one();
         //$model->scenario = 'sliderUpdate';
 
@@ -167,19 +234,16 @@ class SliderController extends \yii\web\Controller
 
             if ($model->validate()) {
 
-                // все данные корректны
-                if($image) {
-                    $new_image_name = Yii::$app->security->generateRandomString() . '.' . $model->image->extension;
-                    $model->image->name = $new_image_name;
-                }
                 $model->save();
+
                 if($image) {
-                    $model->image->saveAs($model->uploadPath . $new_image_name);
+                    $model->saveImage();
                 }
 
                 $data["errors"] = "";
                 $data["success"] = 1;
                 $data["unblock"] = 1;
+                $data["redirectUrl"] = Url::to(['slider/view', 'id' => $model->id]);
                 return json_encode($data,JSON_PRETTY_PRINT);
 
             } else {
@@ -201,6 +265,10 @@ class SliderController extends \yii\web\Controller
 
     public function actionView($id)
     {
+        if (!Yii::$app->user->can('viewSlider')) {
+            return $this->goHome();
+        }
+
         $model = Slider::find()->where(['id' => $id])->one();
 
         if(!$model) {
@@ -215,6 +283,10 @@ class SliderController extends \yii\web\Controller
 
     public function actionActivate()
     {
+        if (!Yii::$app->user->can('updateSlider')) {
+            return $this->goHome();
+        }
+
         if(Yii::$app->request->post()) {
             $post = Yii::$app->request->post();
             $ids = $post["ids"];
@@ -227,7 +299,7 @@ class SliderController extends \yii\web\Controller
                 $model = Slider::find()->where(['id' => $id])->one();
                 if($model) {
                     $model->load(array("active" => 1));
-                    $model->save();
+                    $model->save(false);
                 }
             }
 
@@ -240,6 +312,10 @@ class SliderController extends \yii\web\Controller
 
     public function actionDeactivate()
     {
+        if (!Yii::$app->user->can('updateSlider')) {
+            return $this->goHome();
+        }
+
         if(Yii::$app->request->post()) {
             $post = Yii::$app->request->post();
             $ids = $post["ids"];
@@ -252,7 +328,7 @@ class SliderController extends \yii\web\Controller
                 $model = Slider::find()->where(['id' => $id])->one();
                 if($model) {
                     $model->load(array("active" => 0));
-                    $model->save();
+                    $model->save(false);
                 }
             }
 
@@ -264,6 +340,10 @@ class SliderController extends \yii\web\Controller
     }
 
     public function actionAjaxUpdate() {
+        if (!Yii::$app->user->can('updateSlider')) {
+            return $this->goHome();
+        }
+
         if(Yii::$app->request->post()) {
 
             $errors = [];
@@ -320,6 +400,10 @@ class SliderController extends \yii\web\Controller
 
     public function actionReactivate($id)
     {
+        if (!Yii::$app->user->can('updateSlider')) {
+            return $this->goHome();
+        }
+
         if (Yii::$app->request->isPost) {
             $model = Slider::find()->where(['id' => $id])->one();
 
@@ -327,7 +411,7 @@ class SliderController extends \yii\web\Controller
                 throw new NotFoundHttpException('Slider item not found', 404);
             } else {
                 $model->load(array("active" => $model->active ? 0 : 1));
-                $model->save();
+                $model->save(false);
 
                 return json_encode(["status" => $model->active ? 1:-1],JSON_PRETTY_PRINT);
             }

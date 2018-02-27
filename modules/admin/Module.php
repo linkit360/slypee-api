@@ -49,6 +49,16 @@ class Module extends \yii\base\Module
 
         }
 
+        if(!$user->getIsGuest()) {
+            $user_id = $user->identity->id;
+            $roles = Yii::$app->authManager->getRolesByUser($user_id);
+            foreach ($roles as $r) {
+                if ($r->name == "Admin") {
+                    Yii::$app->user->identity->is_admin = true;
+                }
+            }
+        }
+
         return parent::beforeAction($action);
     }
 }

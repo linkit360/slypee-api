@@ -149,11 +149,15 @@ b, strong {
     font-size: 1rem;
     margin: 0 0 5px;
 }
-.form-summary .help-block.help-block-error {
+.form-summary .help-block.help-block-error, .general-error {
     color: #F44336;
 }
 .form-summary .help-block.help-block-success {
     color: #4CAF50;
+}
+/* kill all errors in summary */
+.form-summary ul {
+    display: none;
 }
 #login-form .form-summary {
     position: relative;

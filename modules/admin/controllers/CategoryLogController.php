@@ -25,9 +25,10 @@ class CategoryLogController extends Controller
      */
     public function actionIndex()
     {
-//        if (!Yii::$app->user->can('viewCategoryLog')) {
-//            return $this->goHome();
-//        }
+        if (!Yii::$app->user->can('viewCategoryLog')) {
+            return $this->goHome();
+        }
+
         $category = null;
 
         $per_page_settings = PerPageSettings::find()->where(['name' => 'category_log'])->one();
@@ -69,12 +70,12 @@ class CategoryLogController extends Controller
             }
 
             if($search->date_begin) {
-                $date_begin = DateTime::createFromFormat('m-d-Y', $search->date_begin);
+                $date_begin = DateTime::createFromFormat('m-d-Y H:i:s', $search->date_begin."00:00:00");
                 $query = $query->andWhere([">=", "datetime", $date_begin->getTimestamp()]);
             }
 
             if($search->date_end) {
-                $date_end = DateTime::createFromFormat('m-d-Y', $search->date_end);
+                $date_end = DateTime::createFromFormat('m-d-Y H:i:s', $search->date_end. " 23:59:59");
                 $query = $query->andWhere(["<=", "datetime", $date_end->getTimestamp()]);
             }
         }

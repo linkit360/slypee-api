@@ -1,1 +1,1 @@
-<a class="waves-effect waves-light btn green" href="<?= $link?>"><i class="material-icons left">add</i>Add</a>
+<a class="waves-effect waves-light btn green" href="<?= $link?>"><i class="material-icons left">add</i><?= $label ? $label : "Add" ?></a>

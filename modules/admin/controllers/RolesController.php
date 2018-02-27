@@ -21,6 +21,10 @@ class RolesController extends \yii\web\Controller
 
     public function actionIndex()
     {
+        if (!Yii::$app->user->identity->is_admin) {
+            return $this->goHome();
+        }
+
         $roles = $this->auth->getRoles();
 
         return $this->render('index', [
@@ -29,6 +33,10 @@ class RolesController extends \yii\web\Controller
     }
 
     public function actionCreate() {
+
+        if (!Yii::$app->user->identity->is_admin) {
+            return $this->goHome();
+        }
 
         $this->getPermissionsArray();
 
@@ -81,6 +89,10 @@ class RolesController extends \yii\web\Controller
 
     public function actionUpdate($name='')
     {
+        if (!Yii::$app->user->identity->is_admin) {
+            return $this->goHome();
+        }
+
         if(!$name) {
             throw new NotFoundHttpException('Role not found' ,404);
         }
@@ -187,6 +199,8 @@ class RolesController extends \yii\web\Controller
         foreach ($permissions as $permission) {
             $permissions_array[$permission->name] = $permission->description;
         }
+
+        ksort($permissions_array);
 
         $this->permissions_array = $permissions_array;
     }

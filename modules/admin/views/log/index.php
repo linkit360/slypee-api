@@ -4,7 +4,7 @@ use yii\helpers\Url;
 use yii\bootstrap\ActiveForm;
 use yii\widgets\LinkPager;
 
-$this->title = $object ? "{$object->name} $type log":"$type log";
+$this->title = $title;
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
@@ -16,7 +16,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php $form = ActiveForm::begin([
         'layout' => 'horizontal',
         'method' => 'GET',
-        'action' => Url::to(['category-log/']),
+        'action' => Url::to(['log/'.$type]),
         'options' => [
             'id' => 'search-form',
         ],
@@ -51,7 +51,7 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
 
         <div class="row flex flex_end">
-            <?= Html::resetButton('Reset filter', ['class' => 'btn orange', 'style' => 'margin-right: 20px', 'onclick'=>"window.location = '".Url::to(['category-log/'])."'"]) ?>
+            <?= Html::resetButton('Reset filter', ['class' => 'btn orange', 'style' => 'margin-right: 20px', 'onclick'=>"window.location = '".Url::to(['log/'.$type])."'"]) ?>
             <?= Html::submitButton("Apply filter", ['class' => 'btn btn-primary green waves-effect waves-light']) ?>
         </div>
 
@@ -64,7 +64,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <tr>
             <th style="width: 15%"><?= $sort->link('datetime', ["class" => "sort-link"]) ?></th>
             <th style="width: 25%"><?= $sort->link('user.username', ["class" => "sort-link", "label" => "User"]) ?></th>
-            <th><?= $sort->link($object_field, ["class" => "sort-link", "label" => "Category"]) ?></th>
+            <th><?= $sort->link($object_field, ["class" => "sort-link", "label" => "Object id / object name"]) ?></th>
             <th><?= $sort->link('crud_types.name', ["class" => "sort-link", "label" => "Type"]) ?></th>
         </tr>
         </thead>
@@ -73,7 +73,7 @@ $this->params['breadcrumbs'][] = $this->title;
             <tr>
                 <td class="nowrap grey-text darken-1"><?= date("m-d-y H:i:s", $log->datetime) ?></td>
                 <td><?= $log->user->username ?></td>
-                <td><?= $log->$type->$field ?></td>
+                <td><?= $log->object_id ?> / <?= $log->$type->$field ?></td>
                 <td class="upper"><?= $log->crudType->name ?></td>
             </tr>
         <?php endforeach; ?>

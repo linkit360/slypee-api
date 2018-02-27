@@ -11,6 +11,7 @@ $config = [
     'bootstrap' => [
         'log',
         'app\modules\admin\Bootstrap',
+        'app\components\Bootstrap',
     ],
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
@@ -35,6 +36,10 @@ $config = [
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
+        'customer' => [
+            'identityClass' => 'app\models\Customers',
+            'class' => 'app\components\CustomerComponent',
+        ],
         'user' => [
             'identityClass' => 'app\models\SlypeeUser',
             'enableAutoLogin' => true,
@@ -47,7 +52,7 @@ $config = [
             // send all mails to a file by default. You have to set
             // 'useFileTransport' to false and configure a transport
             // for the mailer to send real emails.
-            'useFileTransport' => true,
+            'useFileTransport' => false,
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
@@ -98,13 +103,30 @@ $config = [
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'api/content',
                     'pluralize' => false,
-                    'only' => ['index', 'view', 'category', 'subscribe', 'unsubscribe', 'top', 'search'],
+                    'only' => ['index', 'view', 'category', 'subscribe', 'unsubscribe', 'top', 'search', 'customer', 'subscribe-success', 'subscribe-error', 'unsubscribe-success', 'unsubscribe-error'],
                     'extraPatterns' => [
                         'GET subscribe/<id:\d+>' => 'subscribe',
                         'GET unsubscribe/<id:\d+>' => 'unsubscribe',
                         'GET category/<id:\d+>' => 'category',
                         'GET top' => 'top',
-                        'GET search' => 'search'
+                        'GET search' => 'search',
+                        'GET customer' => 'customer',
+                        'GET subscribe-success' => 'subscribe-success',
+                        'GET subscribe-error' => 'subscribe-error',
+                        'GET unsubscribe-success' => 'unsubscribe-success',
+                        'GET unsubscribe-error' => 'unsubscribe-error',
+                    ]
+                ],
+                [
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'api/customer',
+                    'pluralize' => false,
+                    'only' => ['index', 'sigin', 'logout', 'recovery', 'recovery-confirm'],
+                    'extraPatterns' => [
+                        'POST sigin' => 'sigin',
+                        'GET logout' => 'logout',
+                        'POST recovery' => 'recovery',
+                        'POST recovery-confirm' => 'recovery-confirm',
                     ]
                 ],
             ],

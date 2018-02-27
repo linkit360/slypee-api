@@ -7,6 +7,10 @@ use yii\base\NotSupportedException;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
+use yii\web\UploadedFile;
+use yii\imagine\Image;
+
+use app\models\Log;
 
 /**
  * This is the model class for table "customers".
@@ -24,12 +28,16 @@ use yii\web\IdentityInterface;
  *
  * @property CustomersContent[] $customersContents
  */
-class Customers extends \yii\db\ActiveRecord
+class Customers extends ActiveRecord implements IdentityInterface
 {
-    const MIN_PASSWORD_LEN = 5;
+    const MIN_PASSWORD_LEN = 8;
+    private $logType = 'customer';
 
     public $password;
     public $password_confirm;
+    public $old_password;
+
+    public $uploadPath = "uploads/avatars/";
 
     /**
      * @inheritdoc
@@ -37,6 +45,11 @@ class Customers extends \yii\db\ActiveRecord
     public static function tableName()
     {
         return 'customers';
+    }
+
+    public function formName()
+    {
+        return "";
     }
 
     /**
@@ -49,6 +62,8 @@ class Customers extends \yii\db\ActiveRecord
             [['password', 'password_confirm'], 'required', 'on' => 'customerCreate'],
             [['password', 'password_confirm'], 'string', 'min' => self::MIN_PASSWORD_LEN, 'on' => 'customerCreate'],
             [['password', 'password_confirm'], 'validatePasswordOnEdit', 'on' => 'customerUpdate'],
+            [['password', 'password_confirm'], 'validatePasswordOnEdit', 'on' => 'customerApiUpdate'],
+            [['old_password'], 'validatePasswordOnApiEdit', 'on' => 'customerApiUpdate'],
             ['email', 'email'],
             ['password_confirm', 'validateConfirmedPassword'],
             [['status', 'created_at', 'updated_at', 'content'], 'integer'],
@@ -56,8 +71,11 @@ class Customers extends \yii\db\ActiveRecord
             [['auth_key'], 'string', 'max' => 32],
             [['email'], 'unique'],
             [['password_reset_token'], 'unique'],
-            [['active'], 'integer'],
-            [['active'], 'filter', 'filter' => 'intval'],
+            ['avatar', 'string'],
+            ['active', 'filter', 'filter' => function ($value) {
+                return Yii::$app->params["connection_type"] == "pgsql" ? (intval($value) ? true:false) : intval($value);
+            }],
+            //[['avatar'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg', 'on' => 'customerApiUpdate'],
         ];
     }
 
@@ -100,9 +118,25 @@ class Customers extends \yii\db\ActiveRecord
         if($this->$attribute) {
             $len = mb_strlen($this->$attribute, "utf-8");
             if($len < self::MIN_PASSWORD_LEN) {
-                $this->addError($attribute, "Password should contain at least 5 characters.");
+                $this->addError($attribute, "Password should contain at least ".self::MIN_PASSWORD_LEN." characters.");
             }
         }
+    }
+
+    public function validatePasswordOnApiEdit($attribute, $params)
+    {
+        $old_password = $this->$attribute;
+        if(!$this->validatePassword($old_password)) {
+            $this->addError($attribute, "Current password is wrong");
+        }
+
+        # also check new passwords
+        if(!$this->password) {
+            $this->addError($attribute, "You must enter a new password.");
+        }
+
+        //$this->validatePasswordOnEdit("password", null);
+        $this->validateConfirmedPassword("password_confirm", null);
     }
 
     /**
@@ -118,9 +152,14 @@ class Customers extends \yii\db\ActiveRecord
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
+        return static::findOne(['auth_key' => $token, 'active' => 1]);
     }
 
+
+    public static function findByPasswordResetToken($token)
+    {
+        return static::findOne(['password_reset_token' => $token, 'active' => 1]);
+    }
     /**
      * Finds user by username
      *
@@ -129,18 +168,12 @@ class Customers extends \yii\db\ActiveRecord
      */
     public static function findByUsername($username)
     {
-        return static::findOne(['username' => $username, 'status' => self::STATUS_ACTIVE]);
+        return static::findOne(['username' => $username, 'active' => 1]);
     }
 
-    /**
-     * Finds user by username
-     *
-     * @param string $username
-     * @return static|null
-     */
     public static function findByEmail($email)
     {
-        return static::findOne(['email' => $email]);
+        return static::findOne(['email' => $email, 'active' => 1]);
     }
 
     /**
@@ -194,5 +227,148 @@ class Customers extends \yii\db\ActiveRecord
     public function generateAuthKey()
     {
         $this->auth_key = Yii::$app->security->generateRandomString();
+    }
+
+    public  function changeAuthToken()
+    {
+        $this->generateAuthKey();
+        $this->save();
+    }
+
+    function setPasswordRecoveryToken()
+    {
+        $this->password_reset_token = Yii::$app->security->generateRandomString();
+        $this->save();
+
+        Yii::$app->mailer->compose()
+            ->setFrom(Yii::$app->params["robot_email"])
+            ->setTo($this->email)
+            ->setSubject('Slypee: recovery password')
+            ->setHtmlBody('<a href="https://slypee.snpdev.ru/recovery-password/'. $this->password_reset_token .'">https://slypee.snpdev.ru/recovery-password/'.$this->password_reset_token.'</a>')
+            ->send();
+    }
+
+    function setNewPassword($password)
+    {
+        $this->password_reset_token = '';
+        $this->setPassword($password);
+        $this->save();
+    }
+
+    public function prepareForApi()
+    {
+        return [
+            "name" => $this->username,
+            "email" => $this->email,
+            "avatar" => $this->avatar ? Yii::$app->urlManager->createAbsoluteUrl(['/']) . $this->uploadPath . $this->thumbnail:"",
+            "token" => $this->auth_key
+        ];
+    }
+
+    public function setThumbnail($value)
+    {
+        $this->avatar = $value;
+    }
+
+    public function getThumbnail()
+    {
+        $thumb = (dirname($this->avatar) != "." ? dirname($this->avatar)."/": "") . "s_" . basename($this->avatar);
+        return $thumb;
+    }
+
+    public function saveAvatar()
+    {
+        $data = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $this->avatar));
+        $new_avatar_name = Yii::$app->security->generateRandomString(8) . '.png';
+
+        $path = preg_replace("/(\d.+)(\d{3})(\d{3})$/", "$1/$2/$3/", sprintf('%09d', $this->id));
+
+        if(!file_exists($this->uploadPath . $path)) {
+            mkdir($this->uploadPath . $path, 0777, true);
+        }
+
+        file_put_contents($this->uploadPath . $path . $new_avatar_name, $data);
+        Image::thumbnail($this->uploadPath . $path . $new_avatar_name, 500, 500)->save($this->uploadPath . $path . "s_". $new_avatar_name, ['jpeg_quality' => 95]);
+
+        $this->avatar = $path . $new_avatar_name;
+    }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        if(Yii::$app->user->isGuest) {
+            return;
+        }
+
+        // update action is worked if we change some fields besides active field
+        $update = false;
+
+        if($insert) {
+            // add new log
+            (new Log)->addLog($this->id, $this->logType, "Add");
+        } else {
+            // check actions
+            if(!count($changedAttributes)) {
+                return; // nothing to update
+            } else {
+
+                if(isset($changedAttributes["updated_at"])) {
+                    return; // after update updated time
+                }
+
+                if(isset($changedAttributes["active"])) {
+                    // activate or deactivate
+                    if($this->active) {
+                        (new Log)->addLog($this->id, $this->logType, "Activate");
+                    } else {
+                        (new Log)->addLog($this->id, $this->logType, "Deactivate");
+                    }
+
+                    if(count($changedAttributes) > 1) {
+                        $update = true;
+                    }
+
+                } else {
+                    $update = true;
+                }
+
+                if($update) {
+                    (new Log)->addLog($this->id, $this->logType, "Update");
+                }
+
+                $this->updated_at = time();
+                $this->save();
+
+                // emails
+                if(isset($changedAttributes["email"])) {
+                    $this->emailEmail($changedAttributes["email"]);
+                }
+
+                if(isset($changedAttributes["password_hash"])) {
+                    $this->emailPassword();
+                }
+            }
+        }
+    }
+
+    private function emailPassword()
+    {
+        Yii::$app->mailer->compose()
+            ->setFrom(Yii::$app->params["robot_email"])
+            ->setTo($this->email)
+            ->setSubject('Slypee: your password was changed')
+            ->setHtmlBody('Your password was changed by '.Yii::$app->user->identity->username.'.<br/> Your new password is '.$this->password)
+            ->send();
+    }
+
+    private function emailEmail($email)
+    {
+        Yii::$app->mailer->compose()
+            ->setFrom(Yii::$app->params["robot_email"])
+            ->setTo($email)
+            ->setSubject('Slypee: your email was changed')
+            ->setHtmlBody('Your email was changed by '.Yii::$app->user->identity->username.'.<br/> Your new password is '.$this->email)
+            ->send();
     }
 }

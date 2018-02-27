@@ -1,4 +1,6 @@
 $(function() {
+    // reset checkboxes
+    $(".item-checkbox, #itemall").prop("checked", "");
 
     $('select.materialize-select').material_select();
 
@@ -12,6 +14,69 @@ $(function() {
     };
 
     $('input.date_picker').Zebra_DatePicker(date_picker_options);
+
+    // related content
+
+    var $input = $('#related');
+    var utils = function (value) {
+        return value.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+    };
+
+    $input.autocomplete({
+        type: "POST",
+        serviceUrl: '/admin/content/search',
+        minChars: 1,
+        onSearchComplete: function( event, ui ) {
+        },
+        formatResult: function (suggestion, currentValue) {
+            var pattern = '(' + utils(currentValue) + ')';
+            var value = suggestion.value
+                .replace(new RegExp(pattern, 'gi'), '<strong>$1<\/strong>')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/&lt;(\/?strong)&gt;/g, '<$1>');
+            return '<span class="related-content-link" data-id="' + suggestion.id + '"><img class="related-content-logo" src="' + suggestion.logo + '">' + value + '</a>';
+        },
+        preserveInput: true
+    });
+
+    $(document).on("click", ".related-content-link", function() {
+        var el = $(this);
+        var id = el.data("id");
+        var table = $("#related-content-table").children("tbody");
+
+        var existed = table.children("tr[data-content=" + id +"]");
+
+        if(existed.length) {
+            return false;
+        }
+
+        var ths = table.data("id");
+
+        if(id == ths) {
+            return false;
+        }
+
+        var tr = $("<tr/>", {
+            "data-content": id,
+            html: "<td style=\"width: 10%\"><img class='related-content-logo' src=\"" + el.find("img").attr("src") + "\" /></td><td><input type=\"hidden\" value=\"" + id + "\" name=\"related[]\">" + el.text() + "</td><td style=\"width: 5%\"><span class=\"material-icons remove-related-fake hand\" data-content=\""+ id + "\">delete</span></td>"
+        });
+        table.append(tr);
+
+        return false;
+    }).on("click", ".remove-related-fake", function() {
+        var el = $(this);
+        el.closest("tr").remove();
+    }).on("click", ".remove-related", function() {
+        var el = $(this);
+        $.post("/admin/content/remove-related", {"id": el.data("content"), "_csrf": $('meta[name="csrf-token"]').attr("content")}, function(r) {
+            el.closest("tr").remove();
+        }, "json");
+
+        return false;
+    });
 
     // dropzone
     $("#slypee-dropzone").dropzone({
@@ -51,6 +116,14 @@ $(function() {
         }, "json");
 
         return false;
+    });
+
+    // per page settings
+    $("#per_page_settings").change(function() {
+        var el = $(this);
+        $.getJSON("/admin/set-per-page", {"type": el.data("type"), "value": el.val()}, function() {
+            window.location = el.data("url");
+        });
     });
 
     // drag
@@ -140,6 +213,7 @@ $(function() {
     });
 
     $('#edit-form').on('beforeSubmit', function(e) {
+
         var form = $(this);
         var formData = new FormData(form[0]);
         //form.serialize();
@@ -180,6 +254,9 @@ $(function() {
                     btns.prop("disabled", "");
 
                     for(e in data.errors) {
+                        var generalErrorLabel = $("<div/>", {"class": "help-block help-block-error", "text": "Please fix all errors"});
+                        form.find(".form-summary").append(generalErrorLabel);
+
                         var field = form.find(".field-" + e);
                         var errorLabel = $("<div/>", {"class": "help-block help-block-error", "text": data.errors[e]});
                         if(field.length) {
@@ -413,6 +490,37 @@ $(function() {
 
         el.parent().removeClass("table-actions__buttons_active").next().addClass("table-actions__buttons_active");
 
+        // init select
+        rows.each(function(key, val) {
+            var els = $(val).find(".action-input-select");
+
+            if(!els.length) {
+                return false;
+            }
+
+            els.each(function(ekey, eval) {
+               var select_container = $(eval).children(".action-input-select_container");
+
+               var container = $("#" + select_container.data("container"));
+               var select = select_container.find("select");
+
+               if(select.length) {
+                   return;
+               }
+
+               if(container.length) {
+                   var new_select = $("<select/>", {
+                       "name": select_container.data("name"),
+                       "class": "materialize-select",
+                       "html": container.html()
+                   });
+                   select_container.append(new_select);
+                   select_container.find("option[value=" + select_container.data("current") + "]").attr("selected", "selected");
+                   new_select.material_select();
+
+               }
+            });
+        });
     });
 
     $("#cancel-edit-action").on("click", function() {
@@ -437,6 +545,12 @@ $(function() {
             chcks.each(function(ikey, ival) {
                 var chk = $(ival).find(".action-checkbox");
                 chk.prop("checked", chk.prev().val() == "1" ? "checked":"");
+            });
+
+            var selects = $(val).find(".action-input-select");
+            selects.each(function(ikey, ival) {
+                console.log($(ival).find(".action-input-select_container").data("current"));
+                $(ival).find("select option[value=" + $(ival).find(".action-input-select_container").data("current") + "]").attr("selected", "selected");
             });
 
         });
@@ -475,6 +589,15 @@ $(function() {
                 });
             });
 
+            var selects = $(val).find(".action-input-select");
+            selects.each(function(ikey, ival) {
+                var select = $(ival).find("select");
+                data.push({
+                    name: select.attr("name") + "[]",
+                    value: select.val()
+                });
+            });
+
         });
 
         data.push({
@@ -489,6 +612,7 @@ $(function() {
                 rows.each(function(key, val) {
                     var activeLinkStatus = null;
                     var isActive = false;
+
                     var inputs = $(val).find(".action-input");
                     inputs.each(function(ikey, ival) {
                         var inputVal = $(ival).val();
@@ -509,6 +633,12 @@ $(function() {
                             activeLinkStatus = chckStatus ? "active":"nonactive";
                             isActive = chckStatus ? true:false;
                         }
+                    });
+
+                    var selects = $(val).find(".action-input-select");
+                    selects.each(function(ikey, ival) {
+                       $(ival).find(".action-input-select_value").text($(ival).find(":selected").text());
+                       $(ival).ind(".action-input-select_container").data("current", $(ival).find('select').val());
                     });
 
                     var activeLink = $(val).find(".activate span");

@@ -17,7 +17,7 @@ class CategoryController extends ActiveController
 
         $actions["index"]["prepareDataProvider"] = function() {
             return new ActiveDataProvider([
-                'query' => Category::find()->andWhere(["active" => 1]),
+                'query' => Category::find()->andWhere(["active" => 1])->andWhere([">", "content", 0]),
                 'sort' => [
                     'defaultOrder' => [
                         'priority' => SORT_ASC
@@ -42,14 +42,14 @@ class CategoryController extends ActiveController
     }
 
     public function actionMenu() {
-        return Category::find()->select(["id", "name", "slug"])->andWhere(["=", "main_menu", 1])->andWhere(["=", "active", 1])->orderBy("priority")->all();
+        return Category::find()->select(["id", "name", "slug"])->andWhere([">", "content", 0])->andWhere(["=", "main_menu", 1])->andWhere(["=", "active", 1])->orderBy("priority ASC")->all();
     }
 
     public function actionInfo($slug)
     {
         $category = Category::find()->where(["active" => 1, "slug" => $slug])->one();
         if(!$category) {
-            throw new NotFoundHttpException('Content not found', 404);
+            throw new NotFoundHttpException('Category not found', 404);
         }
 
         return $category;

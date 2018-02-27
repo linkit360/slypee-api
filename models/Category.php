@@ -52,10 +52,13 @@ class Category extends \yii\db\ActiveRecord
         return [
             [['name', 'content', 'priority', 'created_at', 'updated_at'], 'required'],
             [['description'], 'string'],
-            [['main_menu', 'main_page', 'content', 'priority', 'created_at', 'updated_at', 'active'], 'integer'],
+            [['content', 'priority', 'created_at', 'updated_at', 'active'], 'integer'], /* 'main_menu', 'main_page' */
             [['name'], 'string', 'max' => 50],
-            [['priority'], 'unique'],
-            [['main_menu', 'main_page', 'priority', 'active'], 'filter', 'filter' => 'intval']
+            [['priority', 'name'], 'unique'],
+            [['priority', 'active'], 'filter', 'filter' => 'intval'],
+            [['main_menu', 'main_page'], 'filter', 'filter' => function ($value) {
+                return Yii::$app->params["connection_type"] == "pgsql" ? (intval($value) ? true:false) : intval($value);
+            }],
         ];
     }
 
@@ -94,6 +97,10 @@ class Category extends \yii\db\ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
+
+        if(Yii::$app->user->isGuest) {
+            return;
+        }
 
         // update action is worked if we change some fields besides active field
         $update = false;

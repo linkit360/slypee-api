@@ -20,9 +20,18 @@ use app\modules\admin\models\PerPageSettings;
  */
 class CategoryController extends Controller
 {
-    public function actionTop()
+    public function init()
     {
         if (!Yii::$app->user->can('viewCategory')) {
+            return $this->goHome();
+        }
+
+        parent::init();
+    }
+
+    public function actionTop()
+    {
+        if (!Yii::$app->user->can('updateCategory')) {
             return $this->goHome();
         }
 
@@ -55,27 +64,37 @@ class CategoryController extends Controller
                 if(!$items) {
                     return json_encode([],JSON_PRETTY_PRINT);
                 }
+
                 foreach ($items as $item) {
                     $item->updateCounters(["priority" => 1]);
                 }
+
                 $current_model->priority = $next_priority;
+
+
             } else {
+
                 $items = Category::find()->andWhere(["<=", "priority", $prev_priority])->andWhere([">", "priority", $current_priority])->all();
+
                 if(!$items) {
                     return json_encode([],JSON_PRETTY_PRINT);
                 }
+
                 foreach ($items as $item) {
                     $item->updateCounters(["priority" => -1]);
                 }
+
                 $current_model->priority = $prev_priority;
             }
 
-            $current_model->save();
+            // TODO postgres issue -> set boolean field to null and model is not validated
+            $current_model->save(false);
 
             $data = [0 => [
                 "id" => $current_model->id,
                 "priority" => $current_model->priority
             ]];
+
             foreach ($items as $item) {
                 $data[] = [
                     "id" => $item->id,
@@ -86,12 +105,14 @@ class CategoryController extends Controller
             return json_encode($data,JSON_PRETTY_PRINT);
         }
 
-        $per_page_settings = PerPageSettings::find()->where(['name' => 'category'])->one();
+        // from session
+        $session = Yii::$app->session;
+        $session_per_page_settings = $session->get("category_per_page_settings");
 
-        if(!$per_page_settings) {
+        if(!$session_per_page_settings) {
             $page_size = 10;
         } else {
-            $page_size = $per_page_settings->value;
+            $page_size = $session_per_page_settings;
         }
 
         $query = Category::find();
@@ -105,6 +126,8 @@ class CategoryController extends Controller
         return $this->render('top', [
             "categories" => $categories,
             "pages" => $pages,
+            "page_size" => $page_size,
+            "session_per_page_settings" => $session_per_page_settings
         ]);
     }
 
@@ -155,22 +178,23 @@ class CategoryController extends Controller
 
             // dates
             if($search->created_date_begin) {
-                $created_date_begin = DateTime::createFromFormat('m-d-Y', $search->created_date_begin);
+                $created_date_begin = DateTime::createFromFormat('m-d-Y H:i:s', $search->created_date_begin." 00:00:00");
                 $query = $query->andWhere([">=", "created_at", $created_date_begin->getTimestamp()]);
+
             }
 
             if($search->created_date_end) {
-                $created_date_end = DateTime::createFromFormat('m-d-Y', $search->created_date_end);
+                $created_date_end = DateTime::createFromFormat('m-d-Y H:i:s', $search->created_date_end." 23:59:59");
                 $query = $query->andWhere(["<=", "created_at", $created_date_end->getTimestamp()]);
             }
 
             if($search->updated_date_begin) {
-                $updated_date_begin = DateTime::createFromFormat('m-d-Y', $search->updated_date_begin);
+                $updated_date_begin = DateTime::createFromFormat('m-d-Y H:i:s', $search->updated_date_begin." 00:00:00");
                 $query = $query->andWhere([">=", "updated_at", $updated_date_begin->getTimestamp()]);
             }
 
             if($search->updated_date_end) {
-                $updated_date_end = DateTime::createFromFormat('m-d-Y', $search->updated_date_end);
+                $updated_date_end = DateTime::createFromFormat('m-d-Y H:i:s', $search->updated_date_end." 23:59:59");
                 $query = $query->andWhere(["<=", "updated_at", $updated_date_end->getTimestamp()]);
             }
 
@@ -184,7 +208,6 @@ class CategoryController extends Controller
                     $query = $query->andWhere(["like", "name", $search->name]);
                 }
             }
-
 
         } else {
             $errors = $search->errors;
@@ -208,7 +231,12 @@ class CategoryController extends Controller
 
     public function actionCreate()
     {
+        if (!Yii::$app->user->can('createCategory')) {
+            return $this->goHome();
+        }
+
         $model = new Category;
+        $model->active = 1;
 
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
             $model->content = 0;
@@ -259,6 +287,10 @@ class CategoryController extends Controller
 
     public function actionView($id)
     {
+        if (!Yii::$app->user->can('viewCategory')) {
+            return $this->goHome();
+        }
+
         $model = Category::find()->where(['id' => $id])->one();
 
         if(!$model) {
@@ -273,6 +305,10 @@ class CategoryController extends Controller
 
     public function actionUpdate($id)
     {
+        if (!Yii::$app->user->can('updateCategory')) {
+            return $this->goHome();
+        }
+
         $model = Category::find()->where(['id' => $id])->one();
 
         if(!$model) {
@@ -292,6 +328,7 @@ class CategoryController extends Controller
                 $data["errors"] = "";
                 $data["success"] = 1;
                 $data["unblock"] = 1;
+                $data["redirectUrl"] = Url::to(['category/view', 'id' => $model->id]);
                 return json_encode($data,JSON_PRETTY_PRINT);
 
             } else {
@@ -313,6 +350,10 @@ class CategoryController extends Controller
 
     public function actionActivate()
     {
+        if (!Yii::$app->user->can('updateCategory')) {
+            return $this->goHome();
+        }
+
         if(Yii::$app->request->post()) {
             $post = Yii::$app->request->post();
             $ids = $post["ids"];
@@ -325,7 +366,7 @@ class CategoryController extends Controller
                 $model = Category::find()->where(['id' => $id])->one();
                 if($model) {
                     $model->load(array("active" => 1));
-                    $model->save();
+                    $model->save(false);
                 }
             }
 
@@ -338,6 +379,10 @@ class CategoryController extends Controller
 
     public function actionDeactivate()
     {
+        if (!Yii::$app->user->can('updateCategory')) {
+            return $this->goHome();
+        }
+
         if(Yii::$app->request->post()) {
             $post = Yii::$app->request->post();
             $ids = $post["ids"];
@@ -350,7 +395,7 @@ class CategoryController extends Controller
                 $model = Category::find()->where(['id' => $id])->one();
                 if($model) {
                     $model->load(array("active" => 0));
-                    $model->save();
+                    $model->save(false);
                 }
             }
 
@@ -362,6 +407,10 @@ class CategoryController extends Controller
     }
 
     public function actionAjaxUpdate() {
+        if (!Yii::$app->user->can('updateCategory')) {
+            return $this->goHome();
+        }
+
         if(Yii::$app->request->post()) {
 
             $errors = [];
@@ -420,6 +469,10 @@ class CategoryController extends Controller
 
     public function actionReactivate($id)
     {
+        if (!Yii::$app->user->can('updateCategory')) {
+            return $this->goHome();
+        }
+
         if (Yii::$app->request->isPost) {
             $model = Category::find()->where(['id' => $id])->one();
 
@@ -427,7 +480,7 @@ class CategoryController extends Controller
                 throw new NotFoundHttpException('Category not found', 404);
             } else {
                 $model->load(array("active" => $model->active ? 0 : 1));
-                $model->save();
+                $model->save(false);
 
                 return json_encode(["status" => $model->active ? 1:-1],JSON_PRETTY_PRINT);
             }

@@ -21,6 +21,8 @@ class Bootstrap implements BootstrapInterface
                 'admin/<controller:category|content|customers|users|slider>/reactivate/<id:\d+>' => 'admin/<controller>/reactivate',
                 'admin/<controller:category|content|customers|users|slider>/update/<id:\d+>' => 'admin/<controller>/update',
 
+                'admin/customers/content/<id:\d+>' => 'admin/customers/content',
+
                 'admin/<controller:category>/content/<category_id:\d+>' => 'admin/<controller>/content',
 
                 'admin/pagination/' => 'admin/per-page-settings/index',

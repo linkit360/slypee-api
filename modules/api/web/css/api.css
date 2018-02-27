@@ -1,3 +1,8 @@
+.api-customer-status {
+    background: lightgreen;
+    padding: 10px;
+}
+
 .api-list {
     margin: 50px 0 0;
 }

@@ -4,7 +4,9 @@ namespace app\models;
 
 use Yii;
 use yii\web\UploadedFile;
+use yii\imagine\Image;
 
+use app\models\RelatedContents;
 
 /**
  * This is the model class for table "content".
@@ -30,6 +32,7 @@ class Content extends \yii\db\ActiveRecord
     public $uploadPath = "uploads/content/";
     private $logType = 'content';
 
+    private $_related = false;
     /**
      * @inheritdoc
      */
@@ -45,11 +48,11 @@ class Content extends \yii\db\ActiveRecord
     {
         return [
             [['category_id', 'content_type_id', 'currency_type_id', 'name', 'rating', 'price', 'created_at', 'updated_at'], 'required'],
-            [['category_id', 'price', 'created_at', 'updated_at', 'active'], 'integer'],
+            [['category_id', 'price', 'created_at', 'updated_at'], 'integer'],
             [['description'], 'string'],
             [['rating'], 'number', 'min' => 0, 'max' => 5],
             [['price'], 'number', 'min' => 0],
-            [['name'], 'string', 'max' => 128],
+            [['name'], 'string', 'max' => 50],
             //[['logo'], 'string', 'max' => 255],
             [['logo'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg'],
             [['logo'], 'required', 'on' => 'contentCreate'],
@@ -58,9 +61,13 @@ class Content extends \yii\db\ActiveRecord
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::className(), 'targetAttribute' => ['category_id' => 'id']],
             [['content_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => ContentTypes::className(), 'targetAttribute' => ['content_type_id' => 'id']],
             [['currency_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => CurrencyTypes::className(), 'targetAttribute' => ['currency_type_id' => 'id']],
-            [['price', 'active', 'category_id', 'content_type_id', 'currency_type_id'], 'filter', 'filter' => 'intval'],
+            [['price', 'category_id', 'content_type_id', 'currency_type_id'], 'filter', 'filter' => 'intval'],
             [['rating'], 'filter', 'filter' => 'floatval'],
             ['photos_ids', 'each', 'rule' => ['integer']],
+            ['active', 'filter', 'filter' => function ($value) {
+                //die(Yii::$app->params["connection_type"]." | ".$value);
+                return Yii::$app->params["connection_type"] == "pgsql" ? (intval($value) ? true:false) : intval($value);
+            }],
         ];
     }
 
@@ -89,6 +96,57 @@ class Content extends \yii\db\ActiveRecord
     public function formName()
     {
         return "";
+    }
+
+    public function saveLogo()
+    {
+        $new_logo_name = Yii::$app->security->generateRandomString(8) . '.' . $this->logo->extension;
+        $this->logo->name = $new_logo_name;
+
+        $path = preg_replace("/(\d.+)(\d{3})(\d{3})$/", "$1/$2/$3/", sprintf('%09d', $this->id));
+
+        if(!file_exists($this->uploadPath . $path)) {
+            mkdir($this->uploadPath . $path, 0777, true);
+        }
+
+        $this->logo->saveAs($this->uploadPath . $path . $new_logo_name);
+        Image::thumbnail($this->uploadPath . $path . $new_logo_name, 250, 250)->save($this->uploadPath . $path . "s_". $new_logo_name, ['jpeg_quality' => 95]);
+
+        $this->logo = $path . $new_logo_name;
+        $this->save();
+    }
+
+    public function getRelated()
+    {
+        if ($this->_related === false) {
+            $related_data = RelatedContent::find()->orWhere(["content_id_a" => $this->id])->orWhere(["content_id_b" => $this->id])->all();
+            $related_content = [];
+
+            foreach ($related_data as $r) {
+
+                if ($r->contentIdA->id == $this->id) {
+                    $related_content[] = [
+                        "id" => $r->id,
+                        "logo" => "/" . $r->contentIdB->uploadPath . $r->contentIdB->logo,
+                        "content" => $r->content_id_b,
+                        "name" => $r->contentIdB->name
+                    ];
+                }
+
+                if ($r->contentIdB->id == $this->id) {
+                    $related_content[] = [
+                        "id" => $r->id,
+                        "logo" => "/" . $r->contentIdA->uploadPath . $r->contentIdA->logo,
+                        "content" => $r->content_id_a,
+                        "name" => $r->contentIdA->name
+                    ];
+                }
+            }
+
+            $this->_related = $related_content;
+        }
+
+        return $this->_related;
     }
 
     /**
@@ -124,6 +182,10 @@ class Content extends \yii\db\ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
+
+        if(Yii::$app->user->isGuest) {
+            return;
+        }
 
         // update action is worked if we change some fields besides active field
         $update = false;
@@ -216,7 +278,7 @@ class Content extends \yii\db\ActiveRecord
             "rating" => $this->rating,
             "type" => $this->contentType->name,
             "currency" => $this->currencyType->name,
-            "logo" => Yii::$app->urlManager->createAbsoluteUrl(['/']) . $this->uploadPath . $this->logo,
+            "logo" => Yii::$app->urlManager->createAbsoluteUrl(['/']) . $this->uploadPath . $this->thumbnail,
             "categoryId" => $this->category_id,
             "producer" => $this->producer
         ];
@@ -224,6 +286,7 @@ class Content extends \yii\db\ActiveRecord
 
     public function prepareForApi() {
         $screenshots = [];
+        $preparedRelated = [];
         $absoluteUrl = Yii::$app->urlManager->createAbsoluteUrl(['/']);
 
         if($this->contentPhotos) {
@@ -235,8 +298,28 @@ class Content extends \yii\db\ActiveRecord
             }
         }
 
+        $related = RelatedContent::find()->orWhere(["content_id_a" => $this->id])->orWhere(["content_id_b" => $this->id])->all();
+
+        if($related) {
+            foreach ($related as $r) {
+                // check active content
+                if($r->contentIdA->active && $r->contentIdB->active && $r->contentIdA->category->active && $r->contentIdB->category->active) {
+
+                    $preparedRelated[] = $r->prepareForApi($this->id);
+
+                }
+            }
+        }
+
+        $owned = 0;
+        if(!Yii::$app->customer->isGuest) {
+            $customer_content = CustomersContent::find()->andWhere(["status" => 1, "customer_id" => Yii::$app->customer->identity->id, "content_id" => $this->id])->one();
+            $owned = $customer_content ? 1:0;
+        }
+
         return [
             "id" => $this->id,
+            "isOwned" => $owned,
             "name" => $this->name,
             "description" => $this->description,
             "price" => $this->price,
@@ -244,10 +327,13 @@ class Content extends \yii\db\ActiveRecord
             "type" => $this->contentType->name,
             "currency" => $this->currencyType->name,
             "logo" => $absoluteUrl.$this->uploadPath.$this->logo,
+            "thumbnailLogo" => Yii::$app->urlManager->createAbsoluteUrl(['/']) . $this->uploadPath . $this->thumbnail,
             "categoryId" => $this->category_id,
             "screenshots" => $screenshots,
             "video" => $this->video,
-            "producer" => $this->producer
+            "producer" => $this->producer,
+            "related" => $preparedRelated,
+            "relatedLength" => count($preparedRelated)
         ];
     }
 
@@ -257,5 +343,16 @@ class Content extends \yii\db\ActiveRecord
                 (new ContentPhotos)->add($photo_id, $this->id);
             }
         }
+    }
+
+    public function setThumbnail($value)
+    {
+        $this->logo = $value;
+    }
+
+    public function getThumbnail()
+    {
+        $thumb = (dirname($this->logo) != "." ? dirname($this->logo)."/": "") . "s_" . basename($this->logo);
+        return $thumb;
     }
 }

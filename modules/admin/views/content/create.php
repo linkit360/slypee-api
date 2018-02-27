@@ -27,31 +27,42 @@ $this->params['breadcrumbs'][] = $this->title;
     'errorCssClass' => 'error'
 ]); ?>
 
+<?= $form->field($model, 'active')->checkbox([
+    'template' => "<div class=\"row\">{input} {label}</div>",
+    'class' => "filled-in indigo-field",
+    'uncheck' => 0,
+    'check' => 1
+]) ?>
+
 
 <?= $form->field($model, 'name')->input('text', [
     'style' => 'width: 30%'
 ]) ?>
 
 <?= $form->field($model, 'category_id')->dropDownList($categories, [
-    'class' => 'materialize-select'
+    'class' => 'materialize-select',
+    'prompt'=>'---'
 ]) ?>
 
 <?= $form->field($model, 'currency_type_id')->dropDownList($currency_types, [
-    'class' => 'materialize-select'
+    'class' => 'materialize-select',
+    'prompt'=>'---'
 ]) ?>
 
 <?= $form->field($model, 'content_type_id')->dropDownList($content_types, [
-    'class' => 'materialize-select'
+    'class' => 'materialize-select',
+    'prompt'=>'---'
 ]) ?>
 
-<?= $form->field($model, 'producer')->input('text', []) ?>
-
 <?= $form->field($model, 'price')->input('text', [
+    'autocomplete' => 'off'
 ]) ?>
 
 <?= $form->field($model, 'rating')->input('text', [
     'style' => 'width: 30%'
 ]) ?>
+
+<?= $form->field($model, 'producer')->input('text', []) ?>
 
 <?= $form->field($model, 'description')->widget(TinyMce::className(), [
     'options' => ['rows' => 16],
@@ -72,7 +83,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <?php
 if($model->logo) {
     ?>
-    <img src="/<?= $model->uploadPath.$model->logo ?>" alt="" style="max-width: 100%" />
+    <img src="/<?= $model->uploadPath . $model->thumbnail ?>" alt="" style="max-width: 100%" />
     <?php
 }
 ?>
@@ -89,12 +100,39 @@ if($model->logo) {
     </div>
 </div>
 
-<?= $form->field($model, 'active')->checkbox([
-    'template' => "<div class=\"row\">{input} {label}</div>",
-    'class' => "filled-in indigo-field",
-    'uncheck' => 0,
-    'check' => 1
-]) ?>
+<?php
+    if($model->id) {
+        ?>
+<h2>Related content</h2>
+<div class="related-content">
+    <table class="striped responsive-table" id="related-content-table">
+        <tbody data-id="<?=$model->id?>">
+        <?php
+            if($model->related) {
+                foreach ($model->related as $r) {
+                    ?>
+                    <tr data-content="<?=$r["content"]?>">
+                        <td style="width: 10%"><img src="<?=$r["logo"]?>" class="related-content-logo" /></td>
+                        <td><?=$r["name"]?></td>
+                        <td style="width: 5%"><span class="material-icons remove-related hand" data-content="<?=$r["id"]?>">delete</span></td>
+                    </tr>
+                    <?php
+                }
+            }
+        ?>
+        </tbody>
+    </table>
+    <div class="input-field">
+        <input type="text" id="related"/>
+        <label for="related">Type name or id of content</label>
+    </div>
+</div>
+        <?php
+    }
+
+?>
+
+<h2>Screenshots</h2>
 
 <?php
     if($model->contentPhotos) {
@@ -131,7 +169,9 @@ if($model->logo) {
     <?= Html::submitButton($btn, ['class' => 'btn btn-primary green waves-effect waves-light']) ?>
 </div>
 
-<div class="form-summary"></div>
+<div class="form-summary">
+    <?= $form->errorSummary($model, ["header" => "<span class=\"general-error\">Please fix all errors</span>"]); ?>
+</div>
 
 <div class="preloader-wrapper small" id="edit-loader">
     <div class="spinner-layer spinner-green-only">

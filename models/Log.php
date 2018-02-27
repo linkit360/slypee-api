@@ -20,6 +20,8 @@ use app\models\CrudTypes;
  */
 class Log extends \yii\db\ActiveRecord
 {
+    private $_objectName = false;
+    public $user_name;
     /**
      * @inheritdoc
      */
@@ -75,7 +77,7 @@ class Log extends \yii\db\ActiveRecord
      */
     public function getUser()
     {
-        return $this->hasOne(SlypeeUser::className(), ['id' => 'user_id']);
+        return $this->hasOne(SlypeeUser::className(), ['id' => 'user_id'])->from(SlypeeUser::tableName() . ' su');
     }
 
     public function getCategory()
@@ -103,7 +105,36 @@ class Log extends \yii\db\ActiveRecord
         return $this->hasOne(SlypeeUser::className(), ['id' => 'object_id']);
     }
 
+    public function getObjectName()
+    {
+        if ($this->_objectName === false) {
+            switch ($this->object_type) {
+                case "content":
+                    $this->_objectName = $this->content->name;
+                    break;
+                case "category":
+                    $this->_objectName = $this->category->name;
+                    break;
+                case "user":
+                    $this->_objectName = $this->loggedUser->username;
+                    break;
+                case "customer":
+                    $this->_objectName = $this->customer->username;
+                    break;
+                case "slider":
+                    $this->_objectName = $this->slider->title;
+                    break;
+            }
+        }
+
+        return $this->_objectName;
+    }
+
     public function addLog($object_id, $object_type, $type) {
+
+        if(!Yii::$app->user->id) {
+            return;
+        }
 
         $crud_type = CrudTypes::find()->where(['name' => $type])->one();
 

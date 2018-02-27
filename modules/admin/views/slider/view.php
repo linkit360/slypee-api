@@ -3,11 +3,22 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 
+use app\modules\admin\widgets\AddNewItem;
+
 $this->title = $title;
 $this->params['breadcrumbs'][] = ['label' => 'Slider', 'url' => ['slider/'], 'class' => 'breadcrumb'];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<h1><?= $this->title ?> &mdash; <?= $model->title?></h1>
+<div class="flex flex_centered flex_between">
+    <h1><?= $this->title ?> &mdash; <?= $model->title?></h1>
+    <?php
+    if (Yii::$app->user->can('createSlider')) {
+        ?>
+        <?= AddNewItem::widget(["label" => "Add new slider item", "link" => Url::to(['slider/add'])]) ?>
+        <?php
+    }
+    ?>
+</div>
 
 <table class="striped responsive-table" style="margin: 25px 0 0">
     <tr>
@@ -46,5 +57,11 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <div class="flex flex_end" style="margin: 25px 0 0">
     <a class="btn orange waves-effect waves-light" href="<?=Url::to(['slider/']);?>" style="margin-right: 20px">Back</a>
-    <a class="btn green waves-effect waves-light" href="<?=Url::to(['slider/update', 'id' => $model->id]);?>">Edit</a>
+    <?php
+    if (Yii::$app->user->can('updateSlider')) {
+        ?>
+        <a class="btn green waves-effect waves-light" href="<?=Url::to(['slider/update', 'id' => $model->id]);?>">Edit</a>
+        <?php
+    }
+    ?>
 </div>
