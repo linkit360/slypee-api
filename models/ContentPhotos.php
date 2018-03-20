@@ -31,7 +31,7 @@ class ContentPhotos extends \yii\db\ActiveRecord
     {
         return [
             [['content_id', 'photo_id'], 'required'],
-            [['content_id', 'photo_id'], 'integer'],
+            [['content_id', 'photo_id', 'priority'], 'integer'],
             [['content_id'], 'exist', 'skipOnError' => true, 'targetClass' => Content::className(), 'targetAttribute' => ['content_id' => 'id']],
             [['photo_id'], 'exist', 'skipOnError' => true, 'targetClass' => Photos::className(), 'targetAttribute' => ['photo_id' => 'id']],
         ];
@@ -71,9 +71,19 @@ class ContentPhotos extends \yii\db\ActiveRecord
     }
 
     public function add($photo_id, $content_id) {
+        // set photo priority!
+        $existed_priority = ContentPhotos::find()->where(['content_id' => $content_id])->orderBy("priority DESC")->one();
+
+        if($existed_priority) {
+            $priority = $existed_priority->priority + 1;
+        } else {
+            $priority = 0;
+        }    
+
         $this->load([
             "photo_id" => $photo_id,
-            "content_id" => $content_id
+            "content_id" => $content_id,
+            "priority" => $priority
         ]);
 
         $this->save(false);

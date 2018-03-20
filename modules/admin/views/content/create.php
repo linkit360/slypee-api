@@ -139,10 +139,11 @@ if($model->logo) {
         ?>
         <div class="table-content">
             <table class="striped responsive-table">
+                <tbody class="sortable" data-href="<?=Url::to(['content/photos-top', 'content_id' => $model->id]);?>">
                 <?php
                     foreach ($model->contentPhotos as $photo) {
                         ?>
-                        <tr>
+                        <tr data-id="<?= $photo->id ?>">
                             <td class="ordering" style="width: 35px"></td>
                             <td>
                                 <img src="/<?=$photo->photo->thumbnail?>" height="60" />
@@ -154,6 +155,7 @@ if($model->logo) {
                         <?php
                     }
                 ?>
+                </tbody>
             </table>
         </div>
         <?php

@@ -169,7 +169,7 @@ class Content extends \yii\db\ActiveRecord
 
     public function getContentPhotos()
     {
-        return $this->hasMany(ContentPhotos::className(), ['content_id' => 'id']);
+        return $this->hasMany(ContentPhotos::className(), ['content_id' => 'id'])->orderBy(['priority' => SORT_ASC]);
     }
 
     public function afterFind()
