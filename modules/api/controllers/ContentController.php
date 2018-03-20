@@ -327,8 +327,8 @@ class ContentController extends ActiveController
             $type = $content->contentType->name;
             $price = $content->price;
             $token = $model->token;
-            $success_url = "https://slypee.snpdev.ru/api/content/subscribe-success?token=$token";
-            $error_url = "https://slypee.snpdev.ru/api/content/subscribe-error?token=$token";
+            $success_url = "https://portal.linkit360.ru/api/content/subscribe-success?token=$token";
+            $error_url = "https://portal.linkit360.ru/api/content/subscribe-error?token=$token";
 
             return ["redirectUrl" => "http://portal.api.linkit360.ru/v-1/subscribe?type=$type&price=$price&cid=$id&success_url=$success_url&error_url=$error_url"];
 
@@ -366,8 +366,8 @@ class ContentController extends ActiveController
 
         $type = $content->contentType->name;
         $price = $content->price;
-        $success_url = "https://slypee.snpdev.ru/api/content/unsubscribe-success?token=$token";
-        $error_url = "https://slypee.snpdev.ru/api/content/unsubscribe-error?token=$token";
+        $success_url = "https://portal.linkit360.ru/api/content/unsubscribe-success?token=$token";
+        $error_url = "https://portal.linkit360.ru/api/content/unsubscribe-error?token=$token";
         return ["redirectUrl" => "http://portal.api.linkit360.ru/v-1/unsubscribe?type=$type&price=$price&cid=$id&success_url=$success_url&error_url=$error_url"];
     }
 

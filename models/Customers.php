@@ -244,7 +244,7 @@ class Customers extends ActiveRecord implements IdentityInterface
             ->setFrom(Yii::$app->params["robot_email"])
             ->setTo($this->email)
             ->setSubject('Slypee: recovery password')
-            ->setHtmlBody('<a href="https://slypee.snpdev.ru/recovery-password/'. $this->password_reset_token .'">https://slypee.snpdev.ru/recovery-password/'.$this->password_reset_token.'</a>')
+            ->setHtmlBody('<a href="https://portal.linkit360.ru/recovery-password/'. $this->password_reset_token .'">https://portal.linkit360.ru/recovery-password/'.$this->password_reset_token.'</a>')
             ->send();
     }
 
