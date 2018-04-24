@@ -25,9 +25,9 @@ class AdminAsset extends AssetBundle
         'js/dropzone.js'
     ];
 
-    public $publishOptions = [
-        'forceCopy' => true,
-    ];
+    // public $publishOptions = [
+    //     'forceCopy' => true,
+    // ];
 
     public $depends = [
         'yii\web\YiiAsset'
