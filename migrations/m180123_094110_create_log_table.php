@@ -12,6 +12,7 @@ class m180123_094110_create_log_table extends Migration
      */
     public function up()
     {
+        
         $this->createTable('log', [
             'id' => $this->primaryKey(),
             'datetime' => $this->integer()->notNull(),
@@ -21,7 +22,7 @@ class m180123_094110_create_log_table extends Migration
             // TODO что делать с миграцией в MYSQL и postgres
             // CREATE TYPE content_type as ENUM('category', 'content', 'user', 'customer', 'slider' - тип для postgres
             // 'object_type' => "ENUM('category', 'content', 'user', 'customer', 'slider')",
-            'object_type' => "content_type"
+            'object_type' => $this->string()->notNull()
         ]);
 
         // creates index for column `user_id`
